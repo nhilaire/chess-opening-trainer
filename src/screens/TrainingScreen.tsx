@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   opening: { color: colors.muted, fontSize: font.small },
   label: { color: colors.text, fontSize: font.body, fontWeight: '700' },
   progress: { color: colors.muted, fontSize: font.small },
-  boardWrap: { alignItems: 'center', marginHorizontal: -spacing.sm },
+  boardWrap: { alignItems: 'center' },
   prompt: { color: colors.text, fontSize: font.body, fontWeight: '600', textAlign: 'center' },
   banner: { fontSize: font.heading, fontWeight: '800', textAlign: 'center' },
   ok: { color: colors.success },

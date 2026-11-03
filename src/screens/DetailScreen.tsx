@@ -76,6 +76,7 @@ export function DetailScreen({ opening, openings, progress, daily, today, onTrai
             value={draft}
             onChangeText={setDraft}
             maxLength={60}
+            returnKeyType="done"
             autoFocus
             style={styles.input}
             accessibilityLabel={t.import.name}

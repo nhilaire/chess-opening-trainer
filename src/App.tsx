@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { buildQueue, QueueItem, Session, summary } from './game/session';
 import { LanguageSetting } from './i18n';
@@ -133,11 +134,13 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView style={styles.root}>
-      <I18nProvider setting={languageSetting} onChange={changeLanguage}>
-        <ErrorBoundary>{content}</ErrorBoundary>
-      </I18nProvider>
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={styles.root}>
+        <I18nProvider setting={languageSetting} onChange={changeLanguage}>
+          <ErrorBoundary>{content}</ErrorBoundary>
+        </I18nProvider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 

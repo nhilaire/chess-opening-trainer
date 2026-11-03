@@ -20,8 +20,8 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 - [x] T-13 Training and summary screens: prompts, banners, progress, stop and Android Back (AC-25, AC-26, AC-28) - proof: unit
 - [x] T-14 Settings (language, sounds, vibrations) and feedback module with generated sounds and haptics (AC-02, AC-31) - proof: unit
 - [x] T-15 About screen: story, author, version, piece credit (AC-32) - proof: unit
-- [ ] T-16 Maestro flows: smoke with README captures, language, import, manage, train discovery and wrong moves, stop, restart persistence, settings, about (AC-02, AC-04, AC-11, AC-12, AC-13, AC-14, AC-20, AC-25, AC-26, AC-28, AC-29, AC-31, AC-32, AC-34) - proof: e2e
-- [ ] T-17 Device checks prepared: launcher name per language, cold start, release manifest without AD_ID (AC-03, AC-33, AC-35) - proof: device
+- [x] T-16 Maestro flows: smoke with README captures, language, import, manage, train discovery and wrong moves, stop, restart persistence, settings, about (AC-02, AC-04, AC-11, AC-12, AC-13, AC-14, AC-20, AC-25, AC-26, AC-28, AC-29, AC-31, AC-32, AC-34) - proof: e2e
+- [x] T-17 Device checks prepared: launcher name per language, cold start, release manifest without AD_ID (AC-03, AC-33, AC-35) - proof: device
 
 ## Notes
 
@@ -31,4 +31,6 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 - T-01 exists because the factory scaffold ignores `firebase: none` (kaizen item).
 - The e2e training flows rely on the first embedded line in tree order (d4 openings, White) and square testIDs
   (`sq-e2`), so Maestro can play moves by tap-tap.
+- T-16 flows and T-17 checks are written here; they run in /verify-app (emulator) and at release (phone):
+  `node scripts/check-apk.mjs <apk>` reads launcher names per language and permissions (AC-03, AC-35).
 - Sounds are generated WAVs (no third-party audio licence); pieces are the Lichess cburnett set (CC BY-SA 3.0).

@@ -80,6 +80,7 @@ export function ImportScreen({ onImported, onBack }: Props) {
             setError(null);
           }}
           maxLength={60}
+          returnKeyType="done"
           style={styles.input}
           accessibilityLabel={t.import.name}
           testID="import-name"

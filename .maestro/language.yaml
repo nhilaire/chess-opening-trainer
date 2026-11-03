@@ -13,7 +13,7 @@ tags:
     id: "home-settings"
 - tapOn:
     id: "settings-language-fr"
-- assertVisible: "Paramètres"
+- assertVisible: "Réglages"
 - takeScreenshot: language-fr-settings
 - tapOn:
     id: "settings-language-en"
@@ -21,7 +21,8 @@ tags:
 - takeScreenshot: language-en-settings
 - tapOn:
     id: "settings-back"
-- assertVisible: "Play"
+- assertVisible: "Add an opening"
+- assertVisible: "Scandinavian Defence"
 - takeScreenshot: language-en-home
 - stopApp
 - launchApp:
@@ -30,7 +31,7 @@ tags:
     visible:
       id: "home-screen"
     timeout: 30000
-- assertVisible: "Play"
+- assertVisible: "Add an opening"
 - tapOn:
     id: "home-settings"
 - tapOn:
@@ -39,4 +40,5 @@ tags:
     id: "settings-language-fr"
 - tapOn:
     id: "settings-back"
-- assertVisible: "Jouer"
+- assertVisible: "Ajouter une ouverture"
+- assertVisible: "Défense Scandinave"

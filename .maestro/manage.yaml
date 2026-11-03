@@ -1,0 +1,82 @@
+appId: io.github.nhilaire.chessopeningtrainer
+name: Manage - rename survives a restart, delete asks first, an empty list disables review
+tags:
+  - manage
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+- tapOn:
+    id: "home-opening-embedded-d4"
+- tapOn:
+    id: "detail-rename"
+- eraseText: 40
+- inputText: "Mon d4"
+- pressKey: Enter
+- tapOn:
+    id: "detail-save"
+- assertVisible: "Mon d4"
+- tapOn:
+    id: "detail-back"
+- assertVisible: "Mon d4"
+- stopApp
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+- assertVisible: "Mon d4"
+- tapOn:
+    id: "home-opening-embedded-scandinavian"
+- tapOn:
+    id: "detail-delete"
+- assertVisible:
+    id: "detail-confirm-text"
+- takeScreenshot: 20-delete-confirm
+- tapOn:
+    id: "detail-cancel"
+- tapOn:
+    id: "detail-back"
+- assertVisible:
+    id: "home-opening-embedded-scandinavian"
+- tapOn:
+    id: "home-opening-embedded-scandinavian"
+- tapOn:
+    id: "detail-delete"
+- tapOn:
+    id: "detail-confirm-delete"
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 5000
+- assertNotVisible:
+    id: "home-opening-embedded-scandinavian"
+- tapOn:
+    id: "home-opening-embedded-d4"
+- tapOn:
+    id: "detail-delete"
+- tapOn:
+    id: "detail-confirm-delete"
+- tapOn:
+    id: "home-opening-embedded-d4Black"
+- tapOn:
+    id: "detail-delete"
+- tapOn:
+    id: "detail-confirm-delete"
+- extendedWaitUntil:
+    visible:
+      id: "home-empty"
+    timeout: 5000
+- assertVisible: "Rien à réviser aujourd'hui|Nothing to review today"
+- takeScreenshot: 21-empty-home
+- stopApp
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: "home-empty"
+    timeout: 30000

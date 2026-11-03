@@ -1,5 +1,5 @@
 appId: io.github.nhilaire.chessopeningtrainer
-name: Smoke (any phone language) - first launch, refuse telemetry, play one round
+name: Smoke (any phone language) - first launch on home, discover the first line, stop, summary
 tags:
   - smoke
 ---
@@ -10,23 +10,43 @@ tags:
       id: "home-screen"
     timeout: 30000
 - assertVisible:
-    id: "home-screen"
+    id: "home-opening-embedded-d4"
+- assertVisible:
+    id: "home-opening-embedded-scandinavian"
+- assertVisible:
+    id: "home-opening-embedded-d4Black"
+- assertNotVisible: "Votre vie privée|Your privacy"
+- assertVisible: "Réviser \\(5 lignes\\)|Review \\(5 lines\\)"
 - takeScreenshot: readme-1-home
 - tapOn:
-    id: "home-play"
-- assertVisible:
-    id: "game-tap-zone"
-- tapOn:
-    id: "game-tap-zone"
-- tapOn:
-    id: "game-tap-zone"
-- takeScreenshot: readme-2-game
+    id: "home-review"
 - extendedWaitUntil:
     visible:
-      id: "game-over-screen"
-    timeout: 20000
-- takeScreenshot: readme-3-game-over
+      id: "training-screen"
+    timeout: 10000
+- assertVisible: "Regarde et rejoue|Watch and replay"
+- assertVisible:
+    id: "arrow-d2-d4"
 - tapOn:
-    id: "game-home"
+    id: "sq-d2"
+- tapOn:
+    id: "sq-d4"
+- extendedWaitUntil:
+    visible:
+      id: "piece-f6-bn"
+    timeout: 5000
+- assertVisible:
+    id: "arrow-c2-c4"
+- takeScreenshot: readme-2-discovery
+- tapOn:
+    id: "train-stop"
+- extendedWaitUntil:
+    visible:
+      id: "summary-screen"
+    timeout: 5000
+- assertVisible: "Séance terminée|Session complete"
+- takeScreenshot: 03-summary
+- tapOn:
+    id: "summary-home"
 - assertVisible:
     id: "home-screen"

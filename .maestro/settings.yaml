@@ -1,0 +1,51 @@
+appId: io.github.nhilaire.chessopeningtrainer
+name: Settings and About - sounds and vibrations off survive a restart, About shows the story and credits
+tags:
+  - settings
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+- tapOn:
+    id: "home-settings"
+- assertVisible:
+    id: "settings-sound"
+    checked: true
+- tapOn:
+    id: "settings-sound"
+- tapOn:
+    id: "settings-vibration"
+- assertVisible:
+    id: "settings-sound"
+    checked: false
+- assertVisible:
+    id: "settings-vibration"
+    checked: false
+- takeScreenshot: 40-settings
+- stopApp
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+- tapOn:
+    id: "home-settings"
+- assertVisible:
+    id: "settings-sound"
+    checked: false
+- assertVisible:
+    id: "settings-vibration"
+    checked: false
+- tapOn:
+    id: "settings-about"
+- assertVisible:
+    id: "about-screen"
+- assertVisible: ".*(s'envolaient|slipped away).*"
+- assertVisible: ".*(développeur indépendant passionné|passionate independent developer).*"
+- assertVisible: ".*cburnett.*"
+- assertVisible: "Version [0-9]+[.][0-9]+[.][0-9]+"
+- takeScreenshot: 41-about
