@@ -1,0 +1,40 @@
+# --- dependencies & tooling
+node_modules/
+.expo/
+web-build/
+coverage/
+*.log
+npm-debug.*
+.DS_Store
+Thumbs.db
+
+# --- build outputs (APKs are never committed)
+dist/
+*.apk
+*.aab
+
+# --- secrets & machine-local config: NEVER commit
+firebase/google-services.json
+google-services.json
+GoogleService-Info.plist
+*.jks
+*.keystore
+!debug.keystore
+*.p12
+*.pfx
+*.pem
+.env
+.env.*
+!.env.example
+local.properties
+# machine-local overrides (factory-app.json "privateConfig": real backend endpoints)
+*.local.ts
+*.local.tsx
+*.local.js
+*.local.mjs
+*.local.json
+keystore.properties
+signing.properties
+
+# --- raw evidence may contain device identifiers: only curated reports are committed
+docs/evidence/**/raw/

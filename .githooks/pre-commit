@@ -1,0 +1,3 @@
+#!/bin/sh
+# Blocks any commit that contains a secret, a forbidden file or personal data.
+exec node scripts/secret-scan.mjs --staged

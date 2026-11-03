@@ -1,0 +1,3 @@
+#!/bin/sh
+# Last line of defence before anything reaches GitHub: scans the whole history and commit identities.
+exec node scripts/secret-scan.mjs --history
