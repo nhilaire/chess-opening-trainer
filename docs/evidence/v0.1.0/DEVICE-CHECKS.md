@@ -2,9 +2,9 @@
 
 Checks that `verify.mjs` does not run, done on the emulator against the APK of the verified commit.
 
-- Verified commit: 5687023
+- Verified commit: 51631b8
 - APK: `android/app/build/outputs/apk/release/app-release.apk` (universal release build of verify.mjs)
-- APK SHA-256: b63e8dfd62ca93e6c5b27ec3fd3198c58931486637c1b41e670a60ae49334e15
+- APK SHA-256: 8561a6e273ac02776f34ab3acb63b6eb43e2c8cfb9821c7d701402d9c357aa6f
 
 | Check | Command | Result | Raw output |
 |---|---|---|---|
