@@ -1,0 +1,52 @@
+# Ouvertures d4 (Noirs)
+# color: black
+# description: Defense Slave et Systeme de Londres joues avec les Noirs
+
+d4
+  d5
+    Bf4 [Systeme de Londres]
+      Nf6 e3 c5 c3 Qb6 Qb3 c4 Qc2
+    e3 [Systeme Colle]
+      Nf6 Bd3 c5 c3 Nc6 f4 Bg4 Nf3 e6
+    Nc3 [Londres avec Nc3]
+      Nf6 Bf4 Bf5 e3 e6 Nf3 Bd6 Ne5 Nbd7
+    c4
+      c6 [Defense Slave]
+        cxd5 [Slave Exchange]
+          cxd5 Nc3 Nf6 Nf3 Nc6 Bf4 Bf5 e3 e6
+        Nc3
+          Nf6
+            e3 [Variante Nc3-e3]
+              Bf5
+                Nf3 [Variante Nc3-e3-Nf3]
+                  e6 Bd3 Bg6 O-O Nbd7 b3 Bd6
+                cxd5 [Variante Nc3-e3-cxd5]
+                  cxd5 Qb3 Nc6 Qxb7 Bd7
+                    Bb5 [Variante Qxb7-Bb5]
+                      Rb8 Qa6 Nb4 Bxd7+ Qxd7 Qe2
+                    Qb3 [Variante Qxb7-Qb3]
+                      Rb8 Qd1 e5 dxe5 Nxe5
+            Nf3
+              dxc4
+                e4 [Variante e4]
+                  b5
+                    a4 [Variante e4-a4]
+                      b4
+                    e5 [Variante e4-e5]
+                      Nd5 a4 e6 axb5 Nxc3 bxc3 cxb5
+                a4 [Variante a4]
+                  Bf5 e3 e6 Bxc4 Bb4 O-O O-O
+        Nf3 [Variante Nf3 - e3]
+          Nf6
+            e3
+              Bf5 Nc3 e6 Bd3 Bg6 O-O Nbd7 b3 Bd6 Bb2 O-O Bxg6 hxg6 Qd3 Re8
+    Nf3 [Variante Nf3]
+      Nf6
+        Bf4 [Londres avec Nf3]
+          c5 e3 Nc6 c3 Qb6 Qb3 c4 Qxb6 axb6
+        e3 [Colle avec Nf3]
+          c5 c3 e6 Bd3 b6 Nbd2 Bb7 O-O
+        c4
+          c6
+            Nc3
+              dxc4 a4 Bf5 e3 e6 Bxc4 Bb4 O-O Nbd7 Qe2 O-O e4 Bg6 e5 Nd5 Bxd5 cxd5 Qb5 Be7 Qxb7 Nb6 a5 Nc4

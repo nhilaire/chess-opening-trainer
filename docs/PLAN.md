@@ -8,7 +8,7 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 - [x] T-01 Remove Firebase, consent screen and telemetry module (`firebase: none`), app opens on home (AC-35, AC-04) - proof: unit
 - [x] T-02 PGN parser: tags, move numbers, nested variations, comments with `[%...]` removed, NAGs, results, `0-0`, multi-game merge, name prefill, validation errors (AC-07, AC-08, AC-09, AC-10) - proof: unit
 - [x] T-03 Repertoire lines: start-to-leaf paths, ids from normalised SAN, labels, tree order, lines without a player move ignored (AC-06) - proof: unit
-- [ ] T-04 Embedded openings: convert the 3 PWA trees to PGN (accents restored), localized names until renamed (AC-05, AC-37) - proof: unit
+- [x] T-04 Embedded openings: convert the 3 PWA trees to PGN (accents restored), localized names until renamed (AC-05, AC-37) - proof: unit
 - [ ] T-05 Leitner scheduler: boxes 1-6, intervals, failed-today rule, 5 new lines per day, counts (AC-15, AC-16, AC-19) - proof: unit
 - [ ] T-06 Session queue: due first with tie-breaks, new lines, re-queue once, single-opening fallback (AC-17, AC-18) - proof: unit
 - [ ] T-07 Line trainer engine: discovery and review modes, other-branch rule, two tries then arrow, promotion, Black's first move (AC-21, AC-22, AC-23, AC-24) - proof: unit
