@@ -10,7 +10,7 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 - [x] T-03 Repertoire lines: start-to-leaf paths, ids from normalised SAN, labels, tree order, lines without a player move ignored (AC-06) - proof: unit
 - [x] T-04 Embedded openings: convert the 3 PWA trees to PGN (accents restored), localized names until renamed (AC-05, AC-37) - proof: unit
 - [x] T-05 Leitner scheduler: boxes 1-6, intervals, failed-today rule, 5 new lines per day, counts (AC-15, AC-16, AC-19) - proof: unit
-- [ ] T-06 Session queue: due first with tie-breaks, new lines, re-queue once, single-opening fallback (AC-17, AC-18) - proof: unit
+- [x] T-06 Session queue: due first with tie-breaks, new lines, re-queue once, single-opening fallback (AC-17, AC-18) - proof: unit
 - [ ] T-07 Line trainer engine: discovery and review modes, other-branch rule, two tries then arrow, promotion, Black's first move (AC-21, AC-22, AC-23, AC-24) - proof: unit
 - [ ] T-08 Persistence: openings, line states, daily counter, settings, versioned keys, corrupt data falls back (AC-30) - proof: unit
 - [ ] T-09 Dictionaries fr/en with all PRD copy, plurals, language resolution kept (AC-01, AC-38) - proof: unit
