@@ -1,9 +1,7 @@
 // Session queue and results. Rules: docs/PRD.md "Session queue" and "Spaced repetition".
 import { extractLines, Line } from './repertoire';
-import { DailyNew, isDue, newLinesLeft, Progress } from './scheduler';
+import type { Progress } from './scheduler';
 import type { Opening } from './types';
-
-export const FALLBACK_LINES = 10;
 
 export type Mode = 'discover' | 'review';
 
@@ -21,39 +19,24 @@ export interface Session {
   results: Record<string, 'learnt' | 'ok' | 'failed'>; // one entry per line, "failed" sticks
 }
 
-type Ranked = { line: Line; openingRank: number };
-
-function rankedLines(openings: readonly Opening[]): Ranked[] {
-  return openings.flatMap((opening, openingRank) => extractLines(opening).map((line) => ({ line, openingRank })));
-}
-
-// Home list order, then tree order.
-const byListOrder = (a: Ranked, b: Ranked) => a.openingRank - b.openingRank || a.line.order - b.line.order;
-
 export interface QueueInput {
-  openings: readonly Opening[]; // in home list order
+  openings: readonly Opening[];
   progress: Progress;
-  daily: DailyNew | undefined;
-  today: string;
   openingId?: string; // « S'entraîner sur cette ouverture »
+  random?: () => number; // uniform in [0, 1), injected by tests
 }
 
-export function buildQueue({ openings, progress, daily, today, openingId }: QueueInput): QueueItem[] {
-  const all = rankedLines(openings).filter((r) => !openingId || r.line.openingId === openingId);
-  const byDue = (a: Ranked, b: Ranked) => progress[a.line.id].due.localeCompare(progress[b.line.id].due) || byListOrder(a, b);
-  const due = all.filter((r) => isDue(progress[r.line.id], today)).sort(byDue);
-  const fresh = all.filter((r) => !progress[r.line.id]).sort(byListOrder).slice(0, newLinesLeft(daily, today));
-  const queue: QueueItem[] = [
-    ...due.map((r) => ({ line: r.line, mode: 'review' as const })),
-    ...fresh.map((r) => ({ line: r.line, mode: 'discover' as const })),
-  ];
-  if (queue.length || !openingId) return queue;
-  // One opening with nothing to do today: train its 10 learnt lines with the earliest due date anyway.
-  return all
-    .filter((r) => progress[r.line.id])
-    .sort(byDue)
-    .slice(0, FALLBACK_LINES)
-    .map((r) => ({ line: r.line, mode: 'review' as const }));
+// Every line of the scope in a random order (Fisher-Yates); new lines are discovered, learnt ones reviewed.
+export function buildQueue({ openings, progress, openingId, random = Math.random }: QueueInput): QueueItem[] {
+  const queue: QueueItem[] = openings
+    .filter((o) => !openingId || o.id === openingId)
+    .flatMap((o) => extractLines(o))
+    .map((line) => ({ line, mode: progress[line.id] ? 'review' : 'discover' }));
+  for (let i = queue.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [queue[i], queue[j]] = [queue[j], queue[i]];
+  }
+  return queue;
 }
 
 export function startSession(queue: QueueItem[]): Session {

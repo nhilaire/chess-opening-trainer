@@ -8,7 +8,7 @@ const { count, integer, label } = formatter('fr-FR');
 export const fr = {
   home: {
     review: (n: number) => `Réviser (${count(n, 'ligne', 'lignes')})`,
-    nothing: "Rien à réviser aujourd'hui",
+    nothing: 'Rien à réviser',
     empty: 'Aucune ouverture. Ajoute-en une en collant un PGN.',
     add: 'Ajouter une ouverture',
     counts: (mastered: number, due: number, fresh: number) =>

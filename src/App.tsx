@@ -56,7 +56,7 @@ export default function App() {
   const home = useCallback(() => setRoute({ name: 'home' }), []);
   const endSession = useCallback((session: Session) => setRoute({ name: 'summary', ...summary(session) }), []);
   const train = (openingId?: string) => {
-    const queue = buildQueue({ openings: repertoire.openings, progress: repertoire.progress, daily: repertoire.daily, today: today(), openingId });
+    const queue = buildQueue({ openings: repertoire.openings, progress: repertoire.progress, openingId });
     if (queue.length) setRoute({ name: 'training', queue });
   };
 
@@ -72,9 +72,7 @@ export default function App() {
     content = opening ? (
       <DetailScreen
         opening={opening}
-        openings={repertoire.openings}
         progress={repertoire.progress}
-        daily={repertoire.daily}
         today={today()}
         onTrain={() => train(opening.id)}
         onRename={(name) => repertoire.rename(opening.id, name)}
@@ -123,7 +121,6 @@ export default function App() {
       <HomeScreen
         openings={repertoire.openings}
         progress={repertoire.progress}
-        daily={repertoire.daily}
         today={today()}
         onReview={() => train()}
         onOpen={(id) => setRoute({ name: 'detail', id })}

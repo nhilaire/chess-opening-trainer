@@ -4,8 +4,7 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { displayName } from '../game/embedded';
 import { validateName } from '../game/pgn';
 import { extractLines } from '../game/repertoire';
-import { countLines, DailyNew, Progress } from '../game/scheduler';
-import { buildQueue } from '../game/session';
+import { countLines, Progress } from '../game/scheduler';
 import type { Opening } from '../game/types';
 import { useI18n } from '../i18n/I18nProvider';
 import { Button } from '../ui/Button';
@@ -15,9 +14,7 @@ import { useBack } from '../ui/useBack';
 
 type Props = {
   opening: Opening;
-  openings: Opening[];
   progress: Progress;
-  daily?: DailyNew;
   today: string;
   onTrain: () => void;
   onRename: (name: string) => void;
@@ -25,16 +22,13 @@ type Props = {
   onBack: () => void;
 };
 
-export function DetailScreen({ opening, openings, progress, daily, today, onTrain, onRename, onDelete, onBack }: Props) {
+export function DetailScreen({ opening, progress, today, onTrain, onRename, onDelete, onBack }: Props) {
   const { t } = useI18n();
   const [mode, setMode] = useState<'view' | 'rename' | 'delete'>('view');
   const name = displayName(opening, t.openings);
   const [draft, setDraft] = useState(name);
   const counts = useMemo(() => countLines(extractLines(opening), progress, today), [opening, progress, today]);
-  const canTrain = useMemo(
-    () => buildQueue({ openings, progress, daily, today, openingId: opening.id }).length > 0,
-    [openings, progress, daily, today, opening.id],
-  );
+  const canTrain = counts.total > 0;
   useBack(mode === 'view' ? onBack : () => setMode('view'));
 
   const save = () => {

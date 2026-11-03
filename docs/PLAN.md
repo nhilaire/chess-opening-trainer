@@ -23,14 +23,17 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 - [x] T-16 Maestro flows: smoke with README captures, language, import, manage, train discovery and wrong moves, stop, restart persistence, settings, about (AC-02, AC-04, AC-11, AC-12, AC-13, AC-14, AC-20, AC-25, AC-26, AC-28, AC-29, AC-31, AC-32, AC-34) - proof: e2e
 - [x] T-17 Device checks prepared: launcher name per language, cold start, release manifest without AD_ID (AC-03, AC-33, AC-35) - proof: device
 
+- [x] T-18 v0.2.0 scheduler and queue: no daily limit, every line of the scope in random order (injected random), not-due success unchanged, not-due failure to box 1, home count = all lines (AC-15, AC-16, AC-17, AC-18, AC-19) - proof: unit
+- [x] T-19 v0.2.0 state, storage and screens: drop the daily counter (old key ignored), detail button always enabled, « Rien à réviser » only without lines (AC-20, AC-30) - proof: unit
+- [ ] T-20 v0.2.0 Maestro flows independent of the random order: smoke checks the total and any arrow, empty state after deleting all openings (AC-20, AC-25) - proof: e2e
 ## Notes
 
 - Order: engine (T-02..T-07) before screens; every rule is a pure function in `src/game/` with `today` (local date
   string) injected, never read inside.
 - `chess.js` is used for legality and SAN normalisation only; the tree, lines, scheduler and queue are ours.
 - T-01 exists because the factory scaffold ignores `firebase: none` (kaizen item).
-- The e2e training flows rely on the first embedded line in tree order (d4 openings, White) and square testIDs
-  (`sq-e2`), so Maestro can play moves by tap-tap.
+- Since v0.2.0 the queue order is random: e2e flows that play moves train a one-line imported opening, the smoke
+  flow only checks the total and that some arrow is shown; square testIDs (`sq-e2`) let Maestro play by tap-tap.
 - T-16 flows and T-17 checks are written here; they run in /verify-app (emulator) and at release (phone):
   `node scripts/check-apk.mjs <apk>` reads launcher names per language and permissions (AC-03, AC-35).
 - Sounds are generated WAVs (no third-party audio licence); pieces are the Lichess cburnett set (CC BY-SA 3.0).

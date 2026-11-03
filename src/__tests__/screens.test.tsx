@@ -3,7 +3,8 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import { BackHandler } from 'react-native';
 
 import App from '../App';
-import { importOpening } from '../game/repertoire';
+import { createEmbeddedOpenings } from '../game/embedded';
+import { extractLines, importOpening } from '../game/repertoire';
 import { localDay } from '../game/scheduler';
 import { deviceLanguageTags } from '../i18n/deviceLocale';
 import { KEYS } from '../storage/repertoireStore';
@@ -43,17 +44,20 @@ async function waitReply(piece: string) {
 
 beforeEach(async () => {
   await AsyncStorage.clear();
+  // Queue order is random (unit-tested in session.test.ts); a source close to 1 keeps the tree order here.
+  jest.spyOn(Math, 'random').mockReturnValue(0.999999);
   jest.mocked(deviceLanguageTags).mockReturnValue(['fr-FR']);
 });
 
 describe('home (AC-04, AC-20, AC-36, AC-37)', () => {
-  it('lists the 3 embedded openings with colour and counts, and offers 5 new lines', async () => {
+  it('lists the 3 embedded openings with colour and counts, and offers every line', async () => {
     await render(<App />);
     expect(await screen.findByText('Ouvertures en d4')).toBeTruthy();
     expect(screen.getByText('Défense Scandinave')).toBeTruthy();
     expect(screen.getByText('d4 avec les Noirs')).toBeTruthy();
     expect(screen.getAllByText(/^Noirs · 0 maîtrisée · 0 à revoir · \d+ nouvelles$/)).toHaveLength(2);
-    expect(screen.getByText('Réviser (5 lignes)')).toBeTruthy();
+    const total = createEmbeddedOpenings().reduce((n, o) => n + extractLines(o).length, 0);
+    expect(screen.getByText(`Réviser (${total} lignes)`)).toBeTruthy();
   });
 
   it('shows the embedded names in English on an English phone', async () => {
@@ -63,12 +67,13 @@ describe('home (AC-04, AC-20, AC-36, AC-37)', () => {
     expect(screen.getByText('d4 with Black')).toBeTruthy();
   });
 
-  it('disables « Réviser » when nothing is due and no new line is left today', async () => {
-    await store({ openings: [SHORT_OPENING], daily: { day: TODAY, count: 5 } });
+  it('offers every line even when all are learnt and none is due', async () => {
+    const later = { box: 3, due: '2999-01-01', learnt: '2026-01-01' };
+    await store({ openings: [SHORT_OPENING], progress: { [LINE_1]: later, [LINE_2]: later } });
     await render(<App />);
     const button = await screen.findByTestId('home-review');
-    expect(screen.getByText("Rien à réviser aujourd'hui")).toBeTruthy();
-    expect(button.props.accessibilityState.disabled).toBe(true);
+    expect(screen.getByText('Réviser (2 lignes)')).toBeTruthy();
+    expect(button.props.accessibilityState.disabled).toBe(false);
   });
 
   it('shows the empty state when no opening is left', async () => {
@@ -76,6 +81,7 @@ describe('home (AC-04, AC-20, AC-36, AC-37)', () => {
     await render(<App />);
     expect(await screen.findByTestId('home-empty')).toBeTruthy();
     expect(screen.getByText('Aucune ouverture. Ajoute-en une en collant un PGN.')).toBeTruthy();
+    expect(screen.getByText('Rien à réviser')).toBeTruthy();
     expect(screen.getByTestId('home-review').props.accessibilityState.disabled).toBe(true);
   });
 });
@@ -114,11 +120,15 @@ describe('opening detail (AC-13, AC-14, AC-18)', () => {
     expect(screen.queryByText('Ouvertures en d4')).toBeNull();
   });
 
-  it('disables training an opening with no learnt line when the daily limit is used up', async () => {
-    await store({ openings: [SHORT_OPENING], daily: { day: TODAY, count: 5 } });
+  it('trains an opening whose lines are all learnt and not due yet', async () => {
+    const later = { box: 3, due: '2999-01-01', learnt: '2026-01-01' };
+    await store({ openings: [SHORT_OPENING], progress: { [LINE_1]: later, [LINE_2]: later } });
     await render(<App />);
     await fireEvent.press(await screen.findByTestId('home-opening-imported-short'));
-    expect(screen.getByTestId('detail-train').props.accessibilityState.disabled).toBe(true);
+    expect(screen.getByTestId('detail-train').props.accessibilityState.disabled).toBe(false);
+    await fireEvent.press(screen.getByTestId('detail-train'));
+    expect(await screen.findByText('Ligne 1 / 2')).toBeTruthy();
+    expect(screen.getByText('À toi de jouer')).toBeTruthy();
   });
 });
 
@@ -177,10 +187,10 @@ describe('training (AC-25, AC-26, AC-28, AC-29)', () => {
     expect(screen.getByText('0 réussie · 0 à revoir · 2 nouvelles apprises')).toBeTruthy();
     const progress = await stored<Record<string, { box: number }>>('progress');
     expect(Object.keys(progress).sort()).toEqual([LINE_1, LINE_2].sort());
-    expect(await stored('daily')).toEqual({ day: TODAY, count: 2 });
+    expect(await AsyncStorage.getItem('repertoire.dailyNew.v1')).toBeNull();
     await screen.unmount();
     await render(<App />);
-    expect(await screen.findByText("Rien à réviser aujourd'hui")).toBeTruthy();
+    expect(await screen.findByText('Réviser (2 lignes)')).toBeTruthy();
     expect(screen.getByText('Blancs · 0 maîtrisée · 0 à revoir · 0 nouvelle')).toBeTruthy();
   });
 
@@ -188,7 +198,7 @@ describe('training (AC-25, AC-26, AC-28, AC-29)', () => {
     const learnt = { box: 2, due: TODAY, learnt: '2026-01-01' };
     await store({ openings: [SHORT_OPENING], progress: { [LINE_1]: learnt, [LINE_2]: { ...learnt, due: '2999-01-01' } } });
     await render(<App />);
-    await fireEvent.press(await screen.findByText('Réviser (1 ligne)'));
+    await fireEvent.press(await screen.findByText('Réviser (2 lignes)'));
     expect(screen.getByText('À toi de jouer')).toBeTruthy();
     await tapMove('e2', 'e4');
     expect(screen.getByText('Pas ce coup-là, réessaie')).toBeTruthy();
@@ -203,7 +213,7 @@ describe('training (AC-25, AC-26, AC-28, AC-29)', () => {
     expect(progress[LINE_1]).toMatchObject({ box: 1, due: TODAY, lastFailed: TODAY });
     // The failed line comes back once at the end of the session.
     await fireEvent.press(screen.getByTestId('train-next'));
-    expect(screen.getByText('Ligne 2 / 2')).toBeTruthy();
+    expect(screen.getByText('Ligne 2 / 3')).toBeTruthy();
     await fireEvent.press(screen.getByTestId('train-stop'));
     expect(await screen.findByText('0 réussie · 1 à revoir · 0 nouvelle apprise')).toBeTruthy();
   });

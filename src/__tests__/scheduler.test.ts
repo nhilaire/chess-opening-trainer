@@ -2,14 +2,11 @@ import type { Line } from '../game/repertoire';
 import {
   addDays,
   countLines,
-  countNewLearnt,
   isDue,
   learn,
   localDay,
-  newLinesLeft,
   Progress,
   review,
-  reviewCount,
 } from '../game/scheduler';
 
 const TODAY = '2026-11-03';
@@ -72,15 +69,19 @@ describe('Leitner boxes (AC-15, AC-16)', () => {
   });
 });
 
-describe('new lines per day (AC-16)', () => {
-  it('allows 5 new lines per local day across the app', () => {
-    expect(newLinesLeft(undefined, TODAY)).toBe(5);
-    let daily = countNewLearnt(undefined, TODAY);
-    for (let i = 0; i < 4; i++) daily = countNewLearnt(daily, TODAY);
-    expect(daily).toEqual({ day: TODAY, count: 5 });
-    expect(newLinesLeft(daily, TODAY)).toBe(0);
-    expect(newLinesLeft(daily, '2026-11-04')).toBe(5);
-    expect(countNewLearnt(daily, '2026-11-04')).toEqual({ day: '2026-11-04', count: 1 });
+describe('training ahead of time (AC-18)', () => {
+  it('a line not due yet keeps its box and due date when succeeded', () => {
+    const state = { box: 3, due: '2026-11-08', learnt: '2026-10-01' };
+    expect(review(state, true, TODAY)).toEqual(state);
+  });
+
+  it('a line not due yet goes back to box 1, due today, when failed', () => {
+    expect(review({ box: 3, due: '2026-11-08', learnt: '2026-10-01' }, false, TODAY)).toEqual({
+      box: 1,
+      due: TODAY,
+      learnt: '2026-10-01',
+      lastFailed: TODAY,
+    });
   });
 });
 
@@ -97,9 +98,4 @@ describe('counts (AC-19)', () => {
     expect(countLines(lines, progress, TODAY)).toEqual({ mastered: 2, due: 2, fresh: 4, total: 8 });
   });
 
-  it('the review count is due lines plus the new lines left today', () => {
-    expect(reviewCount(lines, progress, undefined, TODAY)).toBe(2 + 4);
-    expect(reviewCount(lines, progress, { day: TODAY, count: 3 }, TODAY)).toBe(2 + 2);
-    expect(reviewCount(lines, progress, { day: TODAY, count: 5 }, TODAY)).toBe(2);
-  });
 });

@@ -2,9 +2,8 @@ import { parsePgn } from '../game/pgn';
 import { extractLines } from '../game/repertoire';
 import { Progress } from '../game/scheduler';
 import { buildQueue, currentItem, finishLine, isOver, startSession, summary } from '../game/session';
+import { createEmbeddedOpenings } from '../game/embedded';
 import type { Color, Opening } from '../game/types';
-
-const TODAY = '2026-11-03';
 
 function opening(id: string, pgn: string, color: Color = 'white'): Opening {
   const parsed = parsePgn(pgn);
@@ -22,53 +21,62 @@ const [b1, b2] = ids(B);
 
 const learnt = (due: string, box = 1) => ({ box, due, learnt: '2026-10-01' });
 
-describe('« Réviser » queue (AC-17)', () => {
-  it('puts every due line first (earliest due, ties by list order then tree order), then new lines', () => {
-    const progress: Progress = {
-      [a1]: learnt('2026-11-02'),
-      [b1]: learnt('2026-11-01'),
-      [a2]: learnt('2026-11-02'),
-      [b2]: learnt('2026-11-09'), // not due
-    };
-    const queue = buildQueue({ openings: [A, B], progress, daily: undefined, today: TODAY });
-    expect(queue.map((q) => [q.line.id, q.mode])).toEqual([
-      [b1, 'review'],
-      [a1, 'review'],
-      [a2, 'review'],
-      [a3, 'discover'],
-    ]);
+// Deterministic random sources in [0, 1).
+function seeded(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 1103515245 + 12345) % 2147483648;
+    return s / 2147483648;
+  };
+}
+
+describe('« Réviser » queue (AC-16, AC-17)', () => {
+  const progress: Progress = {
+    [a1]: learnt('2026-11-02'), // due
+    [b1]: learnt('2026-11-09'), // not due yet
+    [b2]: learnt('2026-12-01', 5), // not due yet
+  };
+
+  it('holds every line exactly once: new ones in discovery, learnt ones (due or not) in review', () => {
+    const queue = buildQueue({ openings: [A, B, C], progress, random: seeded(1) });
+    expect(queue.map((q) => q.line.id).sort()).toEqual([...ids(A), ...ids(B), ...ids(C)].sort());
+    const mode = Object.fromEntries(queue.map((q) => [q.line.id, q.mode]));
+    expect([mode[a1], mode[b1], mode[b2], mode[a2], mode[a3]]).toEqual(['review', 'review', 'review', 'discover', 'discover']);
   });
 
-  it('offers new lines in list order then tree order, up to the daily limit left', () => {
-    const queue = buildQueue({ openings: [A, B, C], progress: {}, daily: { day: TODAY, count: 1 }, today: TODAY });
-    expect(queue.map((q) => q.line.id)).toEqual([a1, a2, a3, b1]);
+  it('follows the random source: two sources give two orders, the same source the same order', () => {
+    const order = (seed: number) => buildQueue({ openings: [A, B, C], progress, random: seeded(seed) }).map((q) => q.line.id);
+    expect(order(1)).toEqual(order(1));
+    expect(order(1)).not.toEqual(order(2));
+    expect(order(1)).not.toEqual(extractLines(A).concat(extractLines(B), extractLines(C)).map((l) => l.id));
+  });
+
+  it('has no daily limit: a first launch queues every line of the 3 embedded openings', () => {
+    const embedded = createEmbeddedOpenings();
+    const total = embedded.reduce((n, o) => n + extractLines(o).length, 0);
+    const queue = buildQueue({ openings: embedded, progress: {}, random: seeded(3) });
+    expect(queue).toHaveLength(total);
+    expect(total).toBeGreaterThan(30);
     expect(queue.every((q) => q.mode === 'discover')).toBe(true);
-    expect(buildQueue({ openings: [A], progress: {}, daily: { day: TODAY, count: 5 }, today: TODAY })).toEqual([]);
+  });
+
+  it('is empty only when there is no line', () => {
+    expect(buildQueue({ openings: [], progress: {}, random: seeded(1) })).toEqual([]);
   });
 });
 
 describe('single opening (AC-18)', () => {
-  it('restricts the queue to that opening', () => {
-    const queue = buildQueue({ openings: [A, B], progress: {}, daily: undefined, today: TODAY, openingId: 'B' });
-    expect(queue.map((q) => q.line.id)).toEqual([b1, b2]);
-  });
-
-  it('with nothing due and no new line available, trains the 10 learnt lines due earliest', () => {
-    const cIds = ids(C);
-    const progress: Progress = Object.fromEntries(cIds.map((id, i) => [id, learnt(`2026-12-${String(30 - i).padStart(2, '0')}`)]));
-    const queue = buildQueue({ openings: [C], progress, daily: undefined, today: TODAY, openingId: 'C' });
-    expect(queue).toHaveLength(10);
-    expect(queue[0].line.id).toBe(cIds[11]); // due 2026-12-19, the earliest
+  it('queues all lines of that opening, and only them, even when none is due', () => {
+    const progress: Progress = Object.fromEntries(ids(C).map((id) => [id, learnt('2026-12-30', 3)]));
+    const queue = buildQueue({ openings: [A, B, C], progress, openingId: 'C', random: seeded(5) });
+    expect(queue.map((q) => q.line.id).sort()).toEqual(ids(C).sort());
     expect(queue.every((q) => q.mode === 'review')).toBe(true);
-  });
-
-  it('with no learnt line and the daily limit used up, has nothing to train', () => {
-    expect(buildQueue({ openings: [A], progress: {}, daily: { day: TODAY, count: 5 }, today: TODAY, openingId: 'A' })).toEqual([]);
+    expect(buildQueue({ openings: [A, B], progress: {}, openingId: 'B', random: seeded(5) }).map((q) => q.line.id).sort()).toEqual([b1, b2].sort());
   });
 });
 
 describe('session (AC-17, AC-15 summary)', () => {
-  const queue = buildQueue({ openings: [A], progress: { [a1]: learnt(TODAY), [a2]: learnt(TODAY) }, daily: undefined, today: TODAY });
+  const queue = [a1, a2, a3].map((id, i) => ({ line: extractLines(A)[i], mode: id === a3 ? ('discover' as const) : ('review' as const) }));
 
   it('re-queues a failed line once at the end, and counts each line once in the summary', () => {
     let s = startSession(queue); // a1 review, a2 review, a3 discover

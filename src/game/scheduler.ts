@@ -5,7 +5,6 @@ import type { Line } from './repertoire';
 export const INTERVAL_DAYS = [1, 3, 7, 14, 30, 60]; // box 1..6
 export const MAX_BOX = INTERVAL_DAYS.length;
 export const MASTERED_BOX = 4;
-export const NEW_LINES_PER_DAY = 5;
 
 export interface LineState {
   box: number; // 1..6
@@ -15,11 +14,6 @@ export interface LineState {
 }
 
 export type Progress = Record<string, LineState>; // by line id
-
-export interface DailyNew {
-  day: string;
-  count: number; // new lines learnt that day, across the whole app
-}
 
 // Local calendar day of a Date ("YYYY-MM-DD").
 export function localDay(date: Date): string {
@@ -42,9 +36,11 @@ export function learn(today: string): LineState {
   return { box: 1, due: addDays(today, 1), learnt: today };
 }
 
-// Review result of a learnt line.
+// Review result of a learnt line. Training ahead of time never stretches the interval: a success on a line not
+// due yet changes nothing, a failure sends it back to review like a due line.
 export function review(state: LineState, success: boolean, today: string): LineState {
   if (!success) return { ...state, box: 1, due: today, lastFailed: today };
+  if (!isDue(state, today)) return state;
   // Failed earlier today, then succeeded: never better than a plain success from box 1.
   if (state.lastFailed === today) return { ...state, box: 1, due: addDays(today, 1) };
   const box = Math.min(state.box + 1, MAX_BOX);
@@ -53,15 +49,6 @@ export function review(state: LineState, success: boolean, today: string): LineS
 
 export function isDue(state: LineState | undefined, today: string): boolean {
   return state !== undefined && state.due <= today;
-}
-
-export function newLinesLeft(daily: DailyNew | undefined, today: string): number {
-  const used = daily && daily.day === today ? daily.count : 0;
-  return Math.max(0, NEW_LINES_PER_DAY - used);
-}
-
-export function countNewLearnt(daily: DailyNew | undefined, today: string): DailyNew {
-  return { day: today, count: (daily && daily.day === today ? daily.count : 0) + 1 };
 }
 
 export interface Counts {
@@ -84,10 +71,4 @@ export function countLines(lines: readonly Line[], progress: Progress, today: st
     }
   }
   return { mastered, due, fresh, total: lines.length };
-}
-
-// Number on the « Réviser » button: due lines plus the new lines still allowed today.
-export function reviewCount(lines: readonly Line[], progress: Progress, daily: DailyNew | undefined, today: string): number {
-  const { due, fresh } = countLines(lines, progress, today);
-  return due + Math.min(fresh, newLinesLeft(daily, today));
 }

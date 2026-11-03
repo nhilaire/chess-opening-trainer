@@ -8,7 +8,7 @@ const { count, label } = formatter('en-US');
 export const en: Strings = {
   home: {
     review: (n: number) => `Review (${count(n, 'line', 'lines')})`,
-    nothing: 'Nothing to review today',
+    nothing: 'Nothing to review',
     empty: 'No opening yet. Add one by pasting a PGN.',
     add: 'Add an opening',
     counts: (mastered: number, due: number, fresh: number) => `${mastered} mastered · ${due} to review · ${fresh} new`,

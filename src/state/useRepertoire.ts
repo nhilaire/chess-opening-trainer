@@ -1,12 +1,12 @@
-// App state: openings, line progress, daily new-line counter and feedback settings, loaded once and saved on
+// App state: openings, line progress and feedback settings, loaded once and saved on
 // every change. The clock is read here (today's local day), never in src/game/.
 import { useCallback, useEffect, useState } from 'react';
 
 import { addOpening, deleteOpening, renameOpening } from '../game/library';
-import { countNewLearnt, DailyNew, learn, localDay, Progress, review } from '../game/scheduler';
+import { learn, localDay, Progress, review } from '../game/scheduler';
 import type { Outcome, QueueItem } from '../game/session';
 import type { Opening } from '../game/types';
-import { DEFAULT_FEEDBACK, Feedback, loadState, saveDaily, saveFeedback, saveOpenings, saveProgress } from '../storage/repertoireStore';
+import { DEFAULT_FEEDBACK, Feedback, loadState, saveFeedback, saveOpenings, saveProgress } from '../storage/repertoireStore';
 
 export function today(): string {
   return localDay(new Date());
@@ -16,7 +16,6 @@ export interface Repertoire {
   ready: boolean;
   openings: Opening[];
   progress: Progress;
-  daily?: DailyNew;
   feedback: Feedback;
   add: (opening: Opening) => void;
   rename: (id: string, name: string) => void;
@@ -29,7 +28,6 @@ export function useRepertoire(): Repertoire {
   const [ready, setReady] = useState(false);
   const [openings, setOpenings] = useState<Opening[]>([]);
   const [progress, setProgress] = useState<Progress>({});
-  const [daily, setDaily] = useState<DailyNew | undefined>(undefined);
   const [feedback, setFeedbackState] = useState<Feedback>(DEFAULT_FEEDBACK);
 
   useEffect(() => {
@@ -39,7 +37,6 @@ export function useRepertoire(): Repertoire {
       if (!alive) return;
       setOpenings(state.openings);
       setProgress(state.progress);
-      setDaily(state.daily);
       setFeedbackState(state.feedback);
       setReady(true);
       void saveOpenings(state.openings); // first launch: the embedded openings become the saved list
@@ -85,13 +82,6 @@ export function useRepertoire(): Repertoire {
       void saveProgress(next);
       return next;
     });
-    if (outcome === 'learnt') {
-      setDaily((current) => {
-        const next = countNewLearnt(current, day);
-        void saveDaily(next);
-        return next;
-      });
-    }
   }, []);
 
   const setFeedback = useCallback((value: Feedback) => {
@@ -99,5 +89,5 @@ export function useRepertoire(): Repertoire {
     void saveFeedback(value);
   }, []);
 
-  return { ready, openings, progress, daily, feedback, add, rename, remove, recordLine, setFeedback };
+  return { ready, openings, progress, feedback, add, rename, remove, recordLine, setFeedback };
 }

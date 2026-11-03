@@ -71,7 +71,7 @@ tags:
     visible:
       id: "home-empty"
     timeout: 5000
-- assertVisible: "Rien à réviser aujourd'hui|Nothing to review today"
+- assertVisible: "Rien à réviser|Nothing to review"
 - takeScreenshot: 21-empty-home
 - stopApp
 - launchApp:

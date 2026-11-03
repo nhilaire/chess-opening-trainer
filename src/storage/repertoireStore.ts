@@ -1,16 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { createEmbeddedOpenings } from '../game/embedded';
-import type { DailyNew, LineState, Progress } from '../game/scheduler';
+import type { LineState, Progress } from '../game/scheduler';
 import type { MoveNode, Opening } from '../game/types';
 import { logError } from '../util/log';
 
 // Everything stays on the phone. Versioned keys; a missing openings key means a first launch (embedded openings
-// installed); an empty list is kept (the player deleted everything).
+// installed); an empty list is kept (the player deleted everything). The daily new-line counter of v0.1.0
+// (`repertoire.dailyNew.v1`) is no longer read.
 export const KEYS = {
   openings: 'repertoire.openings.v1',
   progress: 'repertoire.progress.v1',
-  daily: 'repertoire.dailyNew.v1',
   feedback: 'settings.feedback.v1',
 } as const;
 
@@ -22,7 +22,6 @@ export interface Feedback {
 export interface StoredState {
   openings: Opening[];
   progress: Progress;
-  daily?: DailyNew;
   feedback: Feedback;
 }
 
@@ -60,15 +59,13 @@ function parse(raw: string | null): unknown {
 }
 
 // Pure decoding of the stored values: anything corrupt falls back (embedded openings, empty progress, defaults).
-export function decodeState(raw: { openings: string | null; progress: string | null; daily: string | null; feedback: string | null }): StoredState {
+export function decodeState(raw: { openings: string | null; progress: string | null; feedback: string | null }): StoredState {
   const openings = parse(raw.openings);
   const progress = parse(raw.progress);
-  const daily = parse(raw.daily);
   const feedback = parse(raw.feedback);
   return {
     openings: Array.isArray(openings) && openings.every(isOpening) ? openings : createEmbeddedOpenings(),
     progress: isObject(progress) ? Object.fromEntries(Object.entries(progress).filter(([, s]) => isLineState(s))) as Progress : {},
-    daily: isObject(daily) && typeof daily.day === 'string' && typeof daily.count === 'number' ? { day: daily.day, count: daily.count } : undefined,
     feedback: isObject(feedback)
       ? { sound: feedback.sound !== false, vibration: feedback.vibration !== false }
       : DEFAULT_FEEDBACK,
@@ -77,13 +74,13 @@ export function decodeState(raw: { openings: string | null; progress: string | n
 
 export async function loadState(): Promise<StoredState> {
   try {
-    const [openings, progress, daily, feedback] = await Promise.all(
-      [KEYS.openings, KEYS.progress, KEYS.daily, KEYS.feedback].map((k) => AsyncStorage.getItem(k)),
+    const [openings, progress, feedback] = await Promise.all(
+      [KEYS.openings, KEYS.progress, KEYS.feedback].map((k) => AsyncStorage.getItem(k)),
     );
-    return decodeState({ openings, progress, daily, feedback });
+    return decodeState({ openings, progress, feedback });
   } catch (error) {
     logError(error, 'load_state');
-    return decodeState({ openings: null, progress: null, daily: null, feedback: null });
+    return decodeState({ openings: null, progress: null, feedback: null });
   }
 }
 
@@ -97,5 +94,4 @@ async function save(key: string, value: unknown): Promise<void> {
 
 export const saveOpenings = (openings: Opening[]) => save(KEYS.openings, openings);
 export const saveProgress = (progress: Progress) => save(KEYS.progress, progress);
-export const saveDaily = (daily: DailyNew) => save(KEYS.daily, daily);
 export const saveFeedback = (feedback: Feedback) => save(KEYS.feedback, feedback);

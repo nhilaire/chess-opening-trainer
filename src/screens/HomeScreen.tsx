@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { appName } from '../config/app';
 import { displayName } from '../game/embedded';
 import { extractLines } from '../game/repertoire';
-import { countLines, DailyNew, Progress, reviewCount } from '../game/scheduler';
+import { countLines, Progress } from '../game/scheduler';
 import type { Opening } from '../game/types';
 import { useI18n } from '../i18n/I18nProvider';
 import { Button } from '../ui/Button';
@@ -14,7 +14,6 @@ import { colors, font, spacing } from '../ui/theme';
 type Props = {
   openings: Opening[];
   progress: Progress;
-  daily?: DailyNew;
   today: string;
   onReview: () => void;
   onOpen: (id: string) => void;
@@ -22,13 +21,13 @@ type Props = {
   onSettings: () => void;
 };
 
-export function HomeScreen({ openings, progress, daily, today, onReview, onOpen, onAdd, onSettings }: Props) {
+export function HomeScreen({ openings, progress, today, onReview, onOpen, onAdd, onSettings }: Props) {
   const { t, language } = useI18n();
   const rows = useMemo(
     () => openings.map((opening) => ({ opening, counts: countLines(extractLines(opening), progress, today) })),
     [openings, progress, today],
   );
-  const toReview = useMemo(() => reviewCount(openings.flatMap((o) => extractLines(o)), progress, daily, today), [openings, progress, daily, today]);
+  const toReview = rows.reduce((n, row) => n + row.counts.total, 0); // every line, in random order (PRD v0.2.0)
 
   return (
     <Screen testID="home-screen">

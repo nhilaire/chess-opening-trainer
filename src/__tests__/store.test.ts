@@ -8,13 +8,12 @@ import {
   DEFAULT_FEEDBACK,
   KEYS,
   loadState,
-  saveDaily,
   saveFeedback,
   saveOpenings,
   saveProgress,
 } from '../storage/repertoireStore';
 
-const empty = { openings: null, progress: null, daily: null, feedback: null };
+const empty = { openings: null, progress: null, feedback: null };
 
 describe('library changes (AC-13, AC-14)', () => {
   const base = createEmbeddedOpenings();
@@ -54,22 +53,26 @@ describe('persistence (AC-30)', () => {
     const state = await loadState();
     expect(state.openings.map((o) => o.id)).toEqual(['embedded-d4', 'embedded-scandinavian', 'embedded-d4Black']);
     expect(state.progress).toEqual({});
-    expect(state.daily).toBeUndefined();
     expect(state.feedback).toEqual(DEFAULT_FEEDBACK);
   });
 
-  it('restores openings, line states, daily counter and settings', async () => {
+  it('restores openings, line states and settings', async () => {
     const openings = renameOpening(createEmbeddedOpenings(), 'embedded-d4', 'Mon d4').slice(0, 1);
     const progress = { 'embedded-d4|d4 Nf6': { box: 3, due: '2026-11-10', learnt: '2026-10-01', lastFailed: '2026-10-20' } };
     await saveOpenings(openings);
     await saveProgress(progress);
-    await saveDaily({ day: '2026-11-03', count: 2 });
     await saveFeedback({ sound: false, vibration: true });
     const state = await loadState();
     expect(state.openings).toEqual(openings);
     expect(state.progress).toEqual(progress);
-    expect(state.daily).toEqual({ day: '2026-11-03', count: 2 });
     expect(state.feedback).toEqual({ sound: false, vibration: true });
+  });
+
+  it('ignores the daily new-line counter saved by v0.1.0', async () => {
+    await AsyncStorage.setItem('repertoire.dailyNew.v1', JSON.stringify({ day: '2026-11-03', count: 5 }));
+    const state = await loadState();
+    expect(state).not.toHaveProperty('daily');
+    expect(state.openings).toHaveLength(3);
   });
 
   it('keeps an empty list once every opening was deleted (embedded ones do not come back)', async () => {
@@ -81,12 +84,10 @@ describe('persistence (AC-30)', () => {
     const state = decodeState({
       openings: '{not json',
       progress: '[1,2]',
-      daily: '"x"',
       feedback: 'null',
     });
     expect(state.openings.map((o) => o.origin)).toEqual(['embedded', 'embedded', 'embedded']);
     expect(state.progress).toEqual({});
-    expect(state.daily).toBeUndefined();
     expect(state.feedback).toEqual(DEFAULT_FEEDBACK);
     expect(decodeState({ ...empty, openings: JSON.stringify([{ id: 1 }]) }).openings).toHaveLength(3);
     expect(decodeState({ ...empty, progress: JSON.stringify({ a: { box: 1, due: 'x', learnt: 'y' }, b: 'bad' }) }).progress).toEqual({
