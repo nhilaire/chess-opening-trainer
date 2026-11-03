@@ -81,14 +81,15 @@ describe('plurals (AC-38)', () => {
 
   it('French uses the singular for 0 and 1', () => {
     expect([0, 1, 2].map((n) => fr.detail.lines(n))).toEqual(['0 ligne', '1 ligne', '2 lignes']);
-    expect(fr.home.review(1)).toBe('Réviser (1 ligne)');
+    expect([0, 1, 2].map((n) => fr.home.review(n))).toEqual(['Réviser (0 ligne)', 'Réviser (1 ligne)', 'Réviser (2 lignes)']);
     expect(fr.home.counts(1, 2, 0)).toBe('1 maîtrisée · 2 à revoir · 0 nouvelle');
     expect(fr.summary.counts(2, 1, 1)).toBe('2 réussies · 1 à revoir · 1 nouvelle apprise');
   });
 
   it('English uses the singular for 1 only', () => {
     expect([0, 1, 2].map((n) => en.detail.lines(n))).toEqual(['0 lines', '1 line', '2 lines']);
-    expect(en.home.review(12)).toBe('Review (12 lines)');
+    expect([0, 1, 2].map((n) => en.home.review(n))).toEqual(['Review (0 lines)', 'Review (1 line)', 'Review (2 lines)']);
+    expect(en.summary.counts(1, 0, 2)).toBe('1 succeeded · 0 to review · 2 new learnt');
   });
 });
 

@@ -158,6 +158,7 @@ describe('training (AC-25, AC-26, AC-28, AC-29)', () => {
     await fireEvent.press(await screen.findByText('Réviser (2 lignes)'));
     expect(screen.getByText('Regarde et rejoue')).toBeTruthy();
     expect(screen.getByText('Ligne 1 / 2')).toBeTruthy();
+    expect(screen.getAllByText('Court')).toHaveLength(1); // a line without label shows the opening name once
     await tapMove('e2', 'e4'); // not the arrow move
     expect(screen.getByText('Joue le coup indiqué')).toBeTruthy();
     await followArrow(); // d4
