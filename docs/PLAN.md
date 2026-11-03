@@ -5,7 +5,7 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 
 ## Tasks
 
-- [ ] T-01 Remove Firebase, consent screen and telemetry module (`firebase: none`), app opens on home (AC-35, AC-04) - proof: unit
+- [x] T-01 Remove Firebase, consent screen and telemetry module (`firebase: none`), app opens on home (AC-35, AC-04) - proof: unit
 - [ ] T-02 PGN parser: tags, move numbers, nested variations, comments with `[%...]` removed, NAGs, results, `0-0`, multi-game merge, name prefill, validation errors (AC-07, AC-08, AC-09, AC-10) - proof: unit
 - [ ] T-03 Repertoire lines: start-to-leaf paths, ids from normalised SAN, labels, tree order, lines without a player move ignored (AC-06) - proof: unit
 - [ ] T-04 Embedded openings: convert the 3 PWA trees to PGN (accents restored), localized names until renamed (AC-05, AC-37) - proof: unit

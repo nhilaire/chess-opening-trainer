@@ -2,13 +2,13 @@ import { Component, ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { I18nContext } from '../i18n/I18nProvider';
-import { reportError } from '../telemetry/telemetry';
+import { logError } from '../util/log';
 import { Button } from './Button';
 import { colors, font, spacing } from './theme';
 
 type State = { failed: boolean };
 
-// Catches render errors, reports them (if consented) and shows a fallback in the player's language instead of a blank screen.
+// Catches render errors, logs them and shows a fallback in the player's language instead of a blank screen.
 export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   state: State = { failed: false };
 
@@ -17,7 +17,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   }
 
   componentDidCatch(error: unknown) {
-    reportError(error, 'render_error');
+    logError(error, 'render_error');
   }
 
   render() {

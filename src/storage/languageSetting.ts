@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { isLanguageSetting, LanguageSetting } from '../i18n';
-import { reportError } from '../telemetry/telemetry';
+import { logError } from '../util/log';
 
 const KEY = 'settings.language.v1';
 
@@ -11,7 +11,7 @@ export async function loadLanguageSetting(): Promise<LanguageSetting> {
     const value = await AsyncStorage.getItem(KEY);
     return isLanguageSetting(value) ? value : 'auto';
   } catch (error) {
-    reportError(error, 'load_language');
+    logError(error, 'load_language');
     return 'auto';
   }
 }
@@ -20,6 +20,6 @@ export async function saveLanguageSetting(value: LanguageSetting): Promise<void>
   try {
     await AsyncStorage.setItem(KEY, value);
   } catch (error) {
-    reportError(error, 'save_language');
+    logError(error, 'save_language');
   }
 }

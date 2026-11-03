@@ -7,10 +7,8 @@ tags:
     clearState: true
 - extendedWaitUntil:
     visible:
-      id: "consent-screen"
+      id: "home-screen"
     timeout: 30000
-- tapOn:
-    id: "consent-refuse"
 - tapOn:
     id: "home-settings"
 - tapOn:
