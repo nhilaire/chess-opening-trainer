@@ -18,7 +18,7 @@ export function HomeScreen({ onSettings, onAbout }: Props) {
         </Text>
       </View>
       <Button label={t.home.settings} onPress={onSettings} variant="secondary" testID="home-settings" />
-      <Button label={t.home.about} onPress={onAbout} variant="secondary" testID="home-about" />
+      <Button label={t.settings.about} onPress={onAbout} variant="secondary" testID="home-about" />
     </Screen>
   );
 }

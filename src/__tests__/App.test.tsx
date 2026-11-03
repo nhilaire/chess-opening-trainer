@@ -17,7 +17,7 @@ describe('App', () => {
     await render(<App />);
     expect(await screen.findByTestId('home-screen')).toBeTruthy();
     expect(screen.getByText(appName('fr'))).toBeTruthy();
-    expect(screen.getByText('Paramètres')).toBeTruthy();
+    expect(screen.getByText('Réglages')).toBeTruthy();
     expect(screen.queryByText(/vie privée/i)).toBeNull();
   });
 
@@ -36,7 +36,7 @@ describe('App', () => {
 
   it('switches language from the settings at once and remembers the choice', async () => {
     await render(<App />);
-    await fireEvent.press(await screen.findByText('Paramètres'));
+    await fireEvent.press(await screen.findByText('Réglages'));
     await fireEvent.press(screen.getByTestId('settings-language-en'));
     expect(await screen.findByText('Settings')).toBeTruthy();
     expect(await AsyncStorage.getItem('settings.language.v1')).toBe('en');
@@ -51,14 +51,16 @@ describe('App', () => {
     await render(<App />);
     await fireEvent.press(await screen.findByText('Settings'));
     await fireEvent.press(screen.getByTestId('settings-language-auto'));
-    expect(await screen.findByText('Paramètres')).toBeTruthy();
+    expect(await screen.findByText('Réglages')).toBeTruthy();
   });
 
   it('shows the About screen: story, word from the author, data, version', async () => {
     await render(<App />);
     await fireEvent.press(await screen.findByText('À propos'));
     expect(screen.getByTestId('about-screen')).toBeTruthy();
-    expect(screen.getByText(/développeur passionné/)).toBeTruthy();
+    expect(screen.getByText(/s'envolaient dès que je ne les révisais plus/)).toBeTruthy();
+    expect(screen.getByText('Créé par un développeur indépendant passionné.')).toBeTruthy();
+    expect(screen.getByText(/cburnett/)).toBeTruthy();
     expect(screen.getByText(/^Version [0-9]+[.][0-9]+[.][0-9]+$/)).toBeTruthy();
   });
 });

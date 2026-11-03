@@ -75,3 +75,28 @@ describe('formatting', () => {
     expect(en.label('Score', 3)).toBe('Score: 3');
   });
 });
+
+describe('plurals (AC-38)', () => {
+  const { fr, en } = DICTIONARIES;
+
+  it('French uses the singular for 0 and 1', () => {
+    expect([0, 1, 2].map((n) => fr.detail.lines(n))).toEqual(['0 ligne', '1 ligne', '2 lignes']);
+    expect(fr.home.review(1)).toBe('Réviser (1 ligne)');
+    expect(fr.home.counts(1, 2, 0)).toBe('1 maîtrisée · 2 à revoir · 0 nouvelle');
+    expect(fr.summary.counts(2, 1, 1)).toBe('2 réussies · 1 à revoir · 1 nouvelle apprise');
+  });
+
+  it('English uses the singular for 1 only', () => {
+    expect([0, 1, 2].map((n) => en.detail.lines(n))).toEqual(['0 lines', '1 line', '2 lines']);
+    expect(en.home.review(12)).toBe('Review (12 lines)');
+  });
+});
+
+describe('French typography', () => {
+  it('puts a no-break space before « : ? » and inside guillemets', () => {
+    const { fr } = DICTIONARIES;
+    expect(fr.import.errors.illegal('5...Bxf2')).toBe('Coup illégal : 5...Bxf2');
+    expect(fr.detail.deleteConfirm('Slave')).toBe('Supprimer « Slave » et ta progression ?');
+    expect(texts(fr).filter((s) => / [:;!?](\s|$)/.test(s))).toEqual([]);
+  });
+});

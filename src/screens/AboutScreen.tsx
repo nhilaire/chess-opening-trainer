@@ -43,6 +43,7 @@ export function AboutScreen({ onBack }: { onBack: () => void }) {
         <Section title={t.about.storyTitle} paragraphs={t.about.story} />
         <Section title={t.about.authorTitle} paragraphs={t.about.author} />
         <Section title={t.about.dataTitle} paragraphs={t.about.data} />
+        <Section title={t.about.creditsTitle} paragraphs={[t.about.pieces]} />
         <Text style={styles.version}>{t.about.version(APP_VERSION)}</Text>
       </ScrollView>
       <Button label={t.about.back} onPress={onBack} variant="secondary" testID="about-back" />
