@@ -40,7 +40,11 @@ function MovedPiece({ piece, from, cell, orientation }: { piece: BoardPiece; fro
   }, [dx, dy]);
   const style = useAnimatedStyle(() => ({ transform: [{ translateX: dx.value }, { translateY: dy.value }] }));
   return (
-    <Animated.View pointerEvents="none" style={[styles.piece, { left: target.x, top: target.y, width: cell, height: cell }, style]}>
+    <Animated.View
+      pointerEvents="none"
+      testID={`piece-${piece.square}-${piece.color}${piece.type}`}
+      style={[styles.piece, { left: target.x, top: target.y, width: cell, height: cell }, style]}
+    >
       <PieceImage piece={piece} cell={cell} />
     </Animated.View>
   );

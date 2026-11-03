@@ -15,11 +15,11 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 - [x] T-08 Persistence: openings, line states, daily counter, settings, versioned keys, corrupt data falls back (AC-30) - proof: unit
 - [x] T-09 Dictionaries fr/en with all PRD copy, plurals, language resolution kept (AC-01, AC-38) - proof: unit
 - [x] T-10 Board component: cburnett SVG pieces, tap-tap and drag, legal-move highlights, last move, arrows, flip, square testIDs (AC-21, AC-27) - proof: unit
-- [ ] T-11 Home and opening detail screens: review button, counts, empty state, rename, delete with confirmation (AC-04, AC-13, AC-14, AC-20, AC-36, AC-37) - proof: unit
-- [ ] T-12 Import screen: paste, name prefill, colour, inline errors (AC-11, AC-12) - proof: unit
-- [ ] T-13 Training and summary screens: prompts, banners, progress, stop and Android Back (AC-25, AC-26, AC-28) - proof: unit
-- [ ] T-14 Settings (language, sounds, vibrations) and feedback module with generated sounds and haptics (AC-02, AC-31) - proof: unit
-- [ ] T-15 About screen: story, author, version, piece credit (AC-32) - proof: unit
+- [x] T-11 Home and opening detail screens: review button, counts, empty state, rename, delete with confirmation (AC-04, AC-13, AC-14, AC-20, AC-36, AC-37) - proof: unit
+- [x] T-12 Import screen: paste, name prefill, colour, inline errors (AC-11, AC-12) - proof: unit
+- [x] T-13 Training and summary screens: prompts, banners, progress, stop and Android Back (AC-25, AC-26, AC-28) - proof: unit
+- [x] T-14 Settings (language, sounds, vibrations) and feedback module with generated sounds and haptics (AC-02, AC-31) - proof: unit
+- [x] T-15 About screen: story, author, version, piece credit (AC-32) - proof: unit
 - [ ] T-16 Maestro flows: smoke with README captures, language, import, manage, train discovery and wrong moves, stop, restart persistence, settings, about (AC-02, AC-04, AC-11, AC-12, AC-13, AC-14, AC-20, AC-25, AC-26, AC-28, AC-29, AC-31, AC-32, AC-34) - proof: e2e
 - [ ] T-17 Device checks prepared: launcher name per language, cold start, release manifest without AD_ID (AC-03, AC-33, AC-35) - proof: device
 

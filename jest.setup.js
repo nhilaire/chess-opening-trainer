@@ -10,3 +10,21 @@ jest.mock('./src/i18n/deviceLocale', () => ({ deviceLanguageTags: jest.fn(() => 
 // Gesture Handler and Reanimated ship their own Jest mocks.
 require('react-native-gesture-handler/jestSetup');
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+
+jest.mock('expo-audio', () => ({
+  createAudioPlayer: jest.fn(() => ({
+    play: jest.fn(),
+    pause: jest.fn(),
+    remove: jest.fn(),
+    seekTo: jest.fn(() => Promise.resolve()),
+    volume: 1,
+  })),
+  setAudioModeAsync: jest.fn(() => Promise.resolve()),
+}));
+
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn(() => Promise.resolve()),
+  notificationAsync: jest.fn(() => Promise.resolve()),
+  ImpactFeedbackStyle: { Light: 'light', Medium: 'medium', Heavy: 'heavy' },
+  NotificationFeedbackType: { Success: 'success', Warning: 'warning', Error: 'error' },
+}));

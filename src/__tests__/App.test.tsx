@@ -54,9 +54,10 @@ describe('App', () => {
     expect(await screen.findByText('Réglages')).toBeTruthy();
   });
 
-  it('shows the About screen: story, word from the author, data, version', async () => {
+  it('shows the About screen from the settings: story, author, credits, version (AC-32)', async () => {
     await render(<App />);
-    await fireEvent.press(await screen.findByText('À propos'));
+    await fireEvent.press(await screen.findByText('Réglages'));
+    await fireEvent.press(screen.getByTestId('settings-about'));
     expect(screen.getByTestId('about-screen')).toBeTruthy();
     expect(screen.getByText(/s'envolaient dès que je ne les révisais plus/)).toBeTruthy();
     expect(screen.getByText('Créé par un développeur indépendant passionné.')).toBeTruthy();
