@@ -1,5 +1,5 @@
 appId: io.github.nhilaire.chessopeningtrainer
-name: Smoke (any phone language) - first launch on home, discover the first line, stop, summary
+name: Smoke (any phone language) - first launch on home with every line offered, discover a random line, stop, summary
 tags:
   - smoke
 ---
@@ -16,7 +16,8 @@ tags:
 - assertVisible:
     id: "home-opening-embedded-d4Black"
 - assertNotVisible: "Votre vie privée|Your privacy"
-- assertVisible: "Réviser \\(5 lignes\\)|Review \\(5 lines\\)"
+# 11 + 11 + 14 lines of the embedded openings, all offered from the first launch (no daily limit)
+- assertVisible: "Réviser \\(36 lignes\\)|Review \\(36 lines\\)"
 - takeScreenshot: readme-1-home
 - tapOn:
     id: "home-review"
@@ -25,18 +26,12 @@ tags:
       id: "training-screen"
     timeout: 10000
 - assertVisible: "Regarde et rejoue|Watch and replay"
-- assertVisible:
-    id: "arrow-d2-d4"
-- tapOn:
-    id: "sq-d2"
-- tapOn:
-    id: "sq-d4"
+- assertVisible: "Ligne 1 / 36|Line 1 / 36"
+# The order is random: any line shows its arrow (after White's first move when the line is played with Black)
 - extendedWaitUntil:
     visible:
-      id: "piece-f6-bn"
+      id: "arrow-.*"
     timeout: 5000
-- assertVisible:
-    id: "arrow-c2-c4"
 - takeScreenshot: readme-2-discovery
 - tapOn:
     id: "train-stop"
