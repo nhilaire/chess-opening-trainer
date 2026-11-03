@@ -75,6 +75,22 @@ describe('persistence (AC-30)', () => {
     expect(state.openings).toHaveLength(3);
   });
 
+  it('gives embedded openings saved by an older version the lines of this version, keeping names and order (AC-39)', () => {
+    const current = createEmbeddedOpenings();
+    const old = current.map((o) => (o.embeddedKey === 'scandinavian' ? { ...o, name: 'Ma Scandi', tree: o.tree.slice(0, 1).map((n) => ({ ...n, children: [] })) } : o));
+    const imported = importOpening('1. e4 c5 *', 'Sicilienne', 'black', 'imported-1');
+    if (!imported.ok) throw new Error('bad test PGN');
+    const saved = [old[2], old[1], imported.opening]; // d4 White deleted, order changed by the player
+    const state = decodeState({ ...empty, openings: JSON.stringify(saved) });
+    expect(state.openings.map((o) => [o.id, o.name])).toEqual([
+      ['embedded-d4Black', ''],
+      ['embedded-scandinavian', 'Ma Scandi'],
+      ['imported-1', 'Sicilienne'],
+    ]);
+    expect(state.openings[1].tree).toEqual(current[1].tree);
+    expect(state.openings[2].tree).toEqual(imported.opening.tree);
+  });
+
   it('keeps an empty list once every opening was deleted (embedded ones do not come back)', async () => {
     await saveOpenings([]);
     expect((await loadState()).openings).toEqual([]);

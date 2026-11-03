@@ -26,6 +26,8 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 - [x] T-18 v0.2.0 scheduler and queue: no daily limit, every line of the scope in random order (injected random), not-due success unchanged, not-due failure to box 1, home count = all lines (AC-15, AC-16, AC-17, AC-18, AC-19) - proof: unit
 - [x] T-19 v0.2.0 state, storage and screens: drop the daily counter (old key ignored), detail button always enabled, « Rien à réviser » only without lines (AC-20, AC-30) - proof: unit
 - [x] T-20 v0.2.0 Maestro flows independent of the random order: smoke checks the total and any arrow, empty state after deleting all openings (AC-20, AC-25) - proof: e2e
+- [x] T-21 v0.2.0 Scandinavian 7. h3 line, embedded openings refreshed on existing installs (AC-05, AC-39) - proof: unit
+
 ## Notes
 
 - Order: engine (T-02..T-07) before screens; every rule is a pure function in `src/game/` with `today` (local date

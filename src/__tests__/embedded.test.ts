@@ -47,6 +47,13 @@ describe('embedded openings (AC-05)', () => {
     expect(actual.sort()).toEqual(expected.sort());
   });
 
+  it('holds the Scandinavian 7. h3 line added in v0.2.0', () => {
+    const scandinavian = openings.find((o) => o.embeddedKey === 'scandinavian')!;
+    expect(extractLines(scandinavian).map((l) => l.moves.join(' '))).toContain(
+      'e4 d5 exd5 Qxd5 Nc3 Qa5 Bc4 Nf6 d3 c6 Bd2 Qc7 h3 Nbd7 Nf3 b5 Bb3 Nc5 Qe2 e6 d4 Nxb3 axb3 Bb7 O-O Be7',
+    );
+  });
+
   it('restores accents in the French labels and keeps the English ones', () => {
     const comments = (nodes: MoveTree): string[] => nodes.flatMap((n) => [...(n.comment ? [n.comment] : []), ...comments(n.children)]);
     const labels = new Set(openings.flatMap((o) => comments(o.tree)));

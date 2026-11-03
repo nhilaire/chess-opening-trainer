@@ -58,13 +58,23 @@ function parse(raw: string | null): unknown {
   }
 }
 
+// Embedded openings saved by an older version get the tree shipped with this one (new lines appear; progress is
+// kept since line ids are move-based); names, order and deletions are the player's.
+function withCurrentEmbeddedLines(openings: Opening[]): Opening[] {
+  const shipped = createEmbeddedOpenings();
+  return openings.map((opening) => {
+    const current = opening.origin === 'embedded' && shipped.find((o) => o.embeddedKey === opening.embeddedKey);
+    return current ? { ...opening, color: current.color, tree: current.tree } : opening;
+  });
+}
+
 // Pure decoding of the stored values: anything corrupt falls back (embedded openings, empty progress, defaults).
 export function decodeState(raw: { openings: string | null; progress: string | null; feedback: string | null }): StoredState {
   const openings = parse(raw.openings);
   const progress = parse(raw.progress);
   const feedback = parse(raw.feedback);
   return {
-    openings: Array.isArray(openings) && openings.every(isOpening) ? openings : createEmbeddedOpenings(),
+    openings: Array.isArray(openings) && openings.every(isOpening) ? withCurrentEmbeddedLines(openings) : createEmbeddedOpenings(),
     progress: isObject(progress) ? Object.fromEntries(Object.entries(progress).filter(([, s]) => isLineState(s))) as Progress : {},
     feedback: isObject(feedback)
       ? { sound: feedback.sound !== false, vibration: feedback.vibration !== false }

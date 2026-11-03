@@ -10,7 +10,8 @@ Last updated: 2026-11-03
 > v0.2.0 amendment (after the v0.1.0 phone test): no daily limit on new lines; « Réviser » and « S'entraîner sur
 > cette ouverture » queue every line of their scope in random order (new lines still in discovery mode); a line
 > played before its due date only moves when it is failed. Amended: core loop, home, rules "Spaced repetition" and
-> "Session queue", persistence, AC-16..AC-20, AC-25, AC-30, `home.nothing`.
+> "Session queue", persistence, AC-16..AC-20, AC-25, AC-30, `home.nothing`. Also a new Scandinavian line (7. h3) and
+> embedded openings updated on existing installs (AC-39).
 
 > Written in English. Player-facing text is quoted in the "Player copy" section, in every language of the game
 > (`factory-app.json` "languages"; French is the reference).
@@ -122,7 +123,10 @@ flowchart LR
   English labels such as "Harwitz Attack" kept). Names: « Ouvertures en d4 » / "d4 openings", « Défense
   Scandinave » / "Scandinavian Defence", « d4 avec les Noirs » / "d4 with Black": they follow the UI language until
   the user renames them (then the given name is kept in every language). Installed at first launch; renamed or
-  deleted like imported ones; a deletion is final in v0.1.0.
+  deleted like imported ones; a deletion is final. When an app update ships new lines in an embedded opening, a
+  saved embedded opening gets the shipped tree at the next launch (name, list order, deletions and the progress of
+  existing lines are kept). v0.2.0 adds to the Scandinavian, after 4. Bc4 Nf6 5. d3 c6 6. Bd2 Qc7: 7. h3 Nbd7
+  8. Nf3 b5 9. Bb3 Nc5 10. Qe2 e6 11. d4 Nxb3 12. axb3 Bb7 13. O-O Be7.
 
 ### Spaced repetition (per line, Leitner boxes)
 - States: **new** (never learnt), then **box 1..6**. Interval by box in days: 1, 3, 7, 14, 30, 60.
@@ -247,6 +251,10 @@ Managing openings
 - AC-36 [unit] Given no opening left, then home shows `home.empty` and « Réviser » is disabled.
 - AC-37 [unit] Given an embedded opening not renamed, then its name follows the UI language; once renamed, the
   given name is shown in every language. Embedded labels keep their restored accents (« Gambit Dame Refusé »).
+
+- AC-39 [unit] Given embedded openings saved by an older version (renamed, reordered or partly deleted), when the
+  state is loaded, then each kept embedded opening has the tree of this version (the Scandinavian holds the 7. h3
+  line) with its name, order and line progress unchanged; deleted ones do not come back.
 
 Spaced repetition and sessions
 - AC-15 [unit] Given a line in box b, when it is succeeded, then its box is min(b+1, 6) and its due date is today +
