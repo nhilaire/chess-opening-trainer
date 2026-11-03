@@ -69,6 +69,30 @@ tags:
       id: "home-screen"
     timeout: 30000
 - assertVisible: "(Blancs|White) · 0 (maîtrisée|mastered) · 0 (à revoir|to review) · 0 (nouvelle|new)"
+# Killing the app mid-line (two wrong moves already played) leaves the line unchanged (AC-28)
+- tapOn: "Court"
+- tapOn:
+    id: "detail-train"
+- extendedWaitUntil:
+    visible: "À toi de jouer|Your move"
+    timeout: 10000
+- tapOn:
+    id: "sq-e2"
+- tapOn:
+    id: "sq-e4"
+- tapOn:
+    id: "sq-g1"
+- tapOn:
+    id: "sq-f3"
+- assertVisible: "Voici le bon coup|Here is the right move"
+- stopApp
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+- assertVisible: "(Blancs|White) · 0 (maîtrisée|mastered) · 0 (à revoir|to review) · 0 (nouvelle|new)"
 # Nothing due yet: training this opening reviews its learnt line anyway
 - tapOn: "Court"
 - tapOn:

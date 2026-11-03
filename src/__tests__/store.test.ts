@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { createEmbeddedOpenings } from '../game/embedded';
 import { addOpening, deleteOpening, renameOpening } from '../game/library';
-import { importOpening } from '../game/repertoire';
+import { extractLines, importOpening } from '../game/repertoire';
 import {
   decodeState,
   DEFAULT_FEEDBACK,
@@ -81,7 +81,10 @@ describe('persistence (AC-30)', () => {
     const imported = importOpening('1. e4 c5 *', 'Sicilienne', 'black', 'imported-1');
     if (!imported.ok) throw new Error('bad test PGN');
     const saved = [old[2], old[1], imported.opening]; // d4 White deleted, order changed by the player
-    const state = decodeState({ ...empty, openings: JSON.stringify(saved) });
+    const kept = { 'embedded-scandinavian|e4 d5 exd5 Qxd5 Nc3 Qa5 Bc4 Nf6 d3 c6 Bd2 Qc7 Qe2 b5 Bb3 e6': { box: 4, due: '2026-12-01', learnt: '2026-10-01' } };
+    const state = decodeState({ ...empty, openings: JSON.stringify(saved), progress: JSON.stringify(kept) });
+    expect(state.progress).toEqual(kept);
+    expect(extractLines(state.openings[1]).map((l) => l.id)).toContain(Object.keys(kept)[0]);
     expect(state.openings.map((o) => [o.id, o.name])).toEqual([
       ['embedded-d4Black', ''],
       ['embedded-scandinavian', 'Ma Scandi'],
