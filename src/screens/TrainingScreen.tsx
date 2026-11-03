@@ -97,9 +97,11 @@ export function TrainingScreen({ queue, openings, feedback, onLineDone, onExit }
     <Screen testID="training-screen">
       <View style={styles.header}>
         <View style={styles.headerText}>
-          <Text style={styles.opening} numberOfLines={1}>
-            {displayName(opening, t.openings)}
-          </Text>
+          {trainer.line.label && (
+            <Text style={styles.opening} numberOfLines={1}>
+              {displayName(opening, t.openings)}
+            </Text>
+          )}
           <Text style={styles.label} numberOfLines={1} testID="train-label">
             {trainer.line.label ?? displayName(opening, t.openings)}
           </Text>
