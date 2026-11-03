@@ -1,0 +1,24 @@
+appId: io.github.nhilaire.chessopeningtrainer
+name: Telemetry - accept consent and play one round (events checked in logcat by verify.mjs)
+tags:
+  - telemetry
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "consent-screen"
+    timeout: 30000
+- tapOn:
+    id: "consent-accept"
+- assertVisible:
+    id: "home-screen"
+- tapOn:
+    id: "home-play"
+- tapOn:
+    id: "game-tap-zone"
+- extendedWaitUntil:
+    visible:
+      id: "game-over-screen"
+    timeout: 20000
+- takeScreenshot: telemetry-game-over

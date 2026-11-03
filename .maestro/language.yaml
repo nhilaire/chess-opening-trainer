@@ -1,0 +1,44 @@
+appId: io.github.nhilaire.chessopeningtrainer
+name: Language - switch from the settings, the whole UI follows at once and the choice survives a restart
+tags:
+  - language
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "consent-screen"
+    timeout: 30000
+- tapOn:
+    id: "consent-refuse"
+- tapOn:
+    id: "home-settings"
+- tapOn:
+    id: "settings-language-fr"
+- assertVisible: "Paramètres"
+- takeScreenshot: language-fr-settings
+- tapOn:
+    id: "settings-language-en"
+- assertVisible: "Settings"
+- takeScreenshot: language-en-settings
+- tapOn:
+    id: "settings-back"
+- assertVisible: "Play"
+- takeScreenshot: language-en-home
+- stopApp
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+- assertVisible: "Play"
+- tapOn:
+    id: "home-settings"
+- tapOn:
+    id: "settings-language-auto"
+- tapOn:
+    id: "settings-language-fr"
+- tapOn:
+    id: "settings-back"
+- assertVisible: "Jouer"

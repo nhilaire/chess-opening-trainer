@@ -1,0 +1,37 @@
+appId: io.github.nhilaire.chessopeningtrainer
+name: Smoke (any phone language) - first launch, refuse telemetry, play one round
+tags:
+  - smoke
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "consent-screen"
+    timeout: 30000
+- assertVisible:
+    id: "consent-screen"
+- takeScreenshot: 01-consent
+- tapOn:
+    id: "consent-refuse"
+- assertVisible:
+    id: "home-screen"
+- takeScreenshot: readme-1-home
+- tapOn:
+    id: "home-play"
+- assertVisible:
+    id: "game-tap-zone"
+- tapOn:
+    id: "game-tap-zone"
+- tapOn:
+    id: "game-tap-zone"
+- takeScreenshot: readme-2-game
+- extendedWaitUntil:
+    visible:
+      id: "game-over-screen"
+    timeout: 20000
+- takeScreenshot: readme-3-game-over
+- tapOn:
+    id: "game-home"
+- assertVisible:
+    id: "home-screen"
