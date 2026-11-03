@@ -2,7 +2,7 @@
   "slug": "chess-opening-trainer",
   "displayName": "Mes Ouvertures",
   "package": "io.github.nhilaire.chessopeningtrainer",
-  "stack": null,
+  "stack": "expo",
   "description": "Personal chess opening repertoire trainer: drill your own lines on a board",
   "languages": [
     "fr",
