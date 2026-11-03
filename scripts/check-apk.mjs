@@ -16,8 +16,13 @@ if (!apk || !fs.existsSync(apk)) {
 }
 
 function aapt() {
-  const sdk = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT;
-  if (!sdk) throw new Error('ANDROID_HOME is not set');
+  const localProps = path.join(root, 'android', 'local.properties');
+  const fromProps = fs.existsSync(localProps)
+    ? (fs.readFileSync(localProps, 'utf8').match(/^sdk\.dir=(.+)$/m) || [])[1]?.trim().replace(/\\(.)/g, '$1')
+    : undefined;
+  const windowsDefault = process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Android', 'Sdk') : undefined;
+  const sdk = [process.env.ANDROID_HOME, process.env.ANDROID_SDK_ROOT, fromProps, windowsDefault].find((d) => d && fs.existsSync(d));
+  if (!sdk) throw new Error('Android SDK not found (ANDROID_HOME, android/local.properties)');
   const tools = path.join(sdk, 'build-tools');
   const newest = fs.readdirSync(tools).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).pop();
   const exe = path.join(tools, newest, process.platform === 'win32' ? 'aapt.exe' : 'aapt');
