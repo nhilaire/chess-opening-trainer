@@ -14,7 +14,7 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 - [x] T-07 Line trainer engine: discovery and review modes, other-branch rule, two tries then arrow, promotion, Black's first move (AC-21, AC-22, AC-23, AC-24) - proof: unit
 - [x] T-08 Persistence: openings, line states, daily counter, settings, versioned keys, corrupt data falls back (AC-30) - proof: unit
 - [x] T-09 Dictionaries fr/en with all PRD copy, plurals, language resolution kept (AC-01, AC-38) - proof: unit
-- [ ] T-10 Board component: cburnett SVG pieces, tap-tap and drag, legal-move highlights, last move, arrows, flip, square testIDs (AC-21, AC-27) - proof: unit
+- [x] T-10 Board component: cburnett SVG pieces, tap-tap and drag, legal-move highlights, last move, arrows, flip, square testIDs (AC-21, AC-27) - proof: unit
 - [ ] T-11 Home and opening detail screens: review button, counts, empty state, rename, delete with confirmation (AC-04, AC-13, AC-14, AC-20, AC-36, AC-37) - proof: unit
 - [ ] T-12 Import screen: paste, name prefill, colour, inline errors (AC-11, AC-12) - proof: unit
 - [ ] T-13 Training and summary screens: prompts, banners, progress, stop and Android Back (AC-25, AC-26, AC-28) - proof: unit
