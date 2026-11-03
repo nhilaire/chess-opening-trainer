@@ -104,7 +104,8 @@ function addGame(root: MoveTree, movetext: string): PgnError | null {
       continue;
     }
     const san = normaliseToken(token);
-    chess.load(cursor.fen);
+    // Loading a FEN is the slow part: only needed when a variation or a new game moved the cursor.
+    if (chess.fen() !== cursor.fen) chess.load(cursor.fen);
     let played: string;
     try {
       played = chess.move(san, { strict: false }).san;
