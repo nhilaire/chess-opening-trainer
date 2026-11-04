@@ -1,0 +1,34 @@
+appId: ${APP_ID}
+name: Slow API - home is usable at once on the stored openings with the update line, then shows the API openings
+tags:
+  - api
+---
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: scenario
+      MOCK_BODY: '{"name": "repertoire-v1"}'
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: latency
+      MOCK_BODY: '{"ms": 10000}'
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+- assertVisible: "Mise à jour des ouvertures…|Updating openings…"
+- assertVisible:
+    id: "home-opening-ouvertures-en-d4"
+- takeScreenshot: 53-api-updating
+- extendedWaitUntil:
+    visible: "Italienne test"
+    timeout: 60000
+- assertNotVisible: "Mise à jour des ouvertures…|Updating openings…"
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: latency
+      MOCK_BODY: '{"ms": 0}'

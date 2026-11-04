@@ -1,0 +1,23 @@
+appId: ${APP_ID}
+name: Empty API - no opening, the empty state shows and review is disabled
+tags:
+  - api
+---
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: scenario
+      MOCK_BODY: '{"name": "empty"}'
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: "home-empty"
+    timeout: 60000
+- assertVisible: "Rien à réviser|Nothing to review"
+- assertVisible: "Aucune ouverture.*|No opening yet.*"
+- takeScreenshot: 21-empty-home

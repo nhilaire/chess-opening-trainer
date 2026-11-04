@@ -1,8 +1,19 @@
-appId: io.github.nhilaire.chessopeningtrainer
+appId: ${APP_ID}
 name: Language - switch from the settings, the whole UI follows at once and the choice survives a restart
 tags:
   - language
 ---
+# API offline: the embedded seed (names follow the UI language)
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: scenario
+      MOCK_BODY: '{"name": "empty"}'
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: offline
+      MOCK_BODY: '{"on": true}'
 - launchApp:
     clearState: true
 - extendedWaitUntil:
@@ -21,7 +32,7 @@ tags:
 - takeScreenshot: language-en-settings
 - tapOn:
     id: "settings-back"
-- assertVisible: "Add an opening"
+- assertVisible: "Review \\([0-9]+ lines\\)"
 - assertVisible: "Scandinavian Defence"
 - takeScreenshot: language-en-home
 - stopApp
@@ -31,7 +42,7 @@ tags:
     visible:
       id: "home-screen"
     timeout: 30000
-- assertVisible: "Add an opening"
+- assertVisible: "Review \\([0-9]+ lines\\)"
 - tapOn:
     id: "home-settings"
 - tapOn:
@@ -40,5 +51,5 @@ tags:
     id: "settings-language-fr"
 - tapOn:
     id: "settings-back"
-- assertVisible: "Ajouter une ouverture"
+- assertVisible: "Réviser \\([0-9]+ lignes\\)"
 - assertVisible: "Défense Scandinave"

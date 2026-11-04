@@ -1,8 +1,18 @@
-appId: io.github.nhilaire.chessopeningtrainer
-name: Smoke (any phone language) - first launch on home with every line offered, discover a random line, stop, summary
+appId: ${APP_ID}
+name: Smoke (any phone language) - first launch with the API offline shows the embedded seed, discover a random line, stop, summary
 tags:
   - smoke
 ---
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: scenario
+      MOCK_BODY: '{"name": "empty"}'
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: offline
+      MOCK_BODY: '{"on": true}'
 - launchApp:
     clearState: true
 - extendedWaitUntil:
@@ -10,14 +20,19 @@ tags:
       id: "home-screen"
     timeout: 30000
 - assertVisible:
-    id: "home-opening-embedded-d4"
+    id: "home-opening-ouvertures-en-d4"
 - assertVisible:
-    id: "home-opening-embedded-scandinavian"
+    id: "home-opening-defense-scandinave"
 - assertVisible:
-    id: "home-opening-embedded-d4Black"
+    id: "home-opening-ouvertures-d4-noirs"
 - assertNotVisible: "Votre vie privée|Your privacy"
-# 11 + 12 + 14 lines of the embedded openings, all offered from the first launch (no daily limit)
+# 11 + 12 + 14 lines of the embedded seed, all offered at once
 - assertVisible: "Réviser \\(37 lignes\\)|Review \\(37 lines\\)"
+- extendedWaitUntil:
+    visible:
+      id: "home-status-offline"
+    timeout: 60000
+- assertVisible: "Mise à jour impossible.*|Could not update.*"
 - takeScreenshot: readme-1-home
 - tapOn:
     id: "home-review"

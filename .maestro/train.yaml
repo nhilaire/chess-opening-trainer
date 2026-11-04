@@ -1,31 +1,23 @@
-appId: io.github.nhilaire.chessopeningtrainer
-name: Train - discover a short line, progress survives a restart, wrong moves twice then the arrow, stop
+appId: ${APP_ID}
+name: Train - discover a short line from the API, progress survives a restart, wrong moves twice then the arrow, stop
 tags:
   - train
 ---
+# The API serves one short White line: 1. d4 d5 2. c4 e6
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: scenario
+      MOCK_BODY: '{"name": "one-line"}'
 - launchApp:
     clearState: true
 - extendedWaitUntil:
     visible:
       id: "home-screen"
     timeout: 30000
-# A short White line: 1. d4 d5 2. c4 e6
-- tapOn:
-    id: "home-add"
-- tapOn:
-    id: "import-pgn"
-- inputText: "1. d4 d5 2. c4 e6 *"
-- tapOn:
-    id: "import-name"
-- inputText: "Court"
-- pressKey: Enter
-- tapOn:
-    id: "import-color-white"
-- tapOn:
-    id: "import-submit"
 - extendedWaitUntil:
     visible: "Court"
-    timeout: 5000
+    timeout: 60000
 - tapOn: "Court"
 - tapOn:
     id: "detail-train"

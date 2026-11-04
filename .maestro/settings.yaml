@@ -1,8 +1,18 @@
-appId: io.github.nhilaire.chessopeningtrainer
+appId: ${APP_ID}
 name: Settings and About - sounds and vibrations off survive a restart, About shows the story and credits
 tags:
   - settings
 ---
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: scenario
+      MOCK_BODY: '{"name": "empty"}'
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: offline
+      MOCK_BODY: '{"on": true}'
 - launchApp:
     clearState: true
 - extendedWaitUntil:

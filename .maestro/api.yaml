@@ -1,0 +1,73 @@
+appId: ${APP_ID}
+name: API - openings from the mock replace the seed, a changed repertoire shows after a restart, offline keeps the last openings
+tags:
+  - api
+---
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: scenario
+      MOCK_BODY: '{"name": "repertoire-v1"}'
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "Italienne test"
+    timeout: 60000
+- assertVisible: "Française test"
+- assertNotVisible: "Ouvertures en d4|d4 openings"
+- assertVisible: "(Blancs|White) · 0 (maîtrisée|mastered) · 0 (à revoir|to review) · 3 (nouvelles|new)"
+- assertVisible: "Réviser \\(5 lignes\\)|Review \\(5 lines\\)"
+- takeScreenshot: 50-api-v1
+# The editor changed: an opening added, one removed, a line added
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: scenario
+      MOCK_BODY: '{"name": "repertoire-v2"}'
+- stopApp
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "Caro-Kann test"
+    timeout: 60000
+- assertNotVisible: "Française test"
+- assertVisible: "(Blancs|White) · 0 (maîtrisée|mastered) · 0 (à revoir|to review) · 4 (nouvelles|new)"
+- takeScreenshot: 51-api-v2
+# Offline: the last openings stay, a line can be trained
+- runScript:
+    file: scripts/mock.js
+    env:
+      MOCK_ACTION: offline
+      MOCK_BODY: '{"on": true}'
+- stopApp
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: "home-screen"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: "home-status-offline"
+    timeout: 60000
+- assertVisible: "Caro-Kann test"
+- assertVisible: "Italienne test"
+- takeScreenshot: 52-api-offline
+- tapOn: "Caro-Kann test"
+- tapOn:
+    id: "detail-train"
+- extendedWaitUntil:
+    visible:
+      id: "arrow-c7-c6"
+    timeout: 10000
+- assertVisible: "Regarde et rejoue|Watch and replay"
+- tapOn:
+    id: "train-stop"
