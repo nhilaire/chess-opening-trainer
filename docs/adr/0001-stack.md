@@ -46,7 +46,7 @@ only for legality and SAN normalisation.
 Expo with Continuous Native Generation, built locally with prebuild + Gradle:
 1. Every library the PRD needs is an Expo module or Expo-supported, nothing native to write.
 2. Upgrades stay cheap (SDK bump) and the factory's build, verify and release scripts are proven on Expo.
-3. A future Azure backend is plain `fetch` to a configurable URL and does not change this choice.
+3. A future backend is plain `fetch` to a configurable URL and does not change this choice.
 
 ## Consequences
 

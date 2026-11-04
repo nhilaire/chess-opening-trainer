@@ -9,7 +9,7 @@ Checks that `verify.mjs` does not run, done on the emulator against the APK of t
 | Check | Command | Result | Raw output |
 |---|---|---|---|
 | Launcher name per language (AC-03, APK side) | `node scripts/check-apk.mjs <apk>` | PASS: default "My Openings", fr "Mes Ouvertures", en "My Openings" | `raw/device-apk-check.txt` |
-| No AD_ID permission (AC-35) | `node scripts/check-apk.mjs <apk>` (aapt dump badging) | PASS: 8 permissions, no `AD_ID` / `ACCESS_ADSERVICES_AD_ID` | `raw/device-apk-check.txt` |
+| No AD_ID permission (AC-35) | `node scripts/check-apk.mjs <apk>` (aapt dump badging) | PASS: 8 permissions (FOREGROUND_SERVICE, FOREGROUND_SERVICE_MEDIA_PLAYBACK, INTERNET, MODIFY_AUDIO_SETTINGS, VIBRATE, ACCESS_NETWORK_STATE, WAKE_LOCK, DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION), no `AD_ID` / `ACCESS_ADSERVICES_AD_ID` | `raw/device-apk-check.txt` |
 | Permissions of the installed app (AC-35) | `adb shell dumpsys package io.github.nhilaire.chessopeningtrainer.e2e` | PASS: no AD_ID among requested permissions | `raw/device-installed-permissions.txt` |
 | No private API address in git history (AC-48) | `node scripts/secret-scan.mjs --history --dir .` (private host of `privateConfig` as a term) | PASS: history clean | `raw/device-history-scan.txt` |
 | Prod APK holds the private host, not the mock (AC-48) | `checkApkVariant(dist/<arm64 prod apk>, prod)` (lib/e2e.mjs, private host of `privateConfig` as term) | PASS: bundle uses the private endpoint, not the mock (re-checked by build-apk at release) | `raw/device-prod-apk-variant.txt` |

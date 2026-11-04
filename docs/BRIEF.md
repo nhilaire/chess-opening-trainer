@@ -18,7 +18,7 @@ Final app name: Mes Ouvertures
   (d4 with White, Scandinavian with Black, d4 with Black: Slav and London).
 - Training: the app picks a random leaf line, plays the opponent's moves, the player must find their move; a wrong
   move shows a green arrow with the expected move. End of line: congratulations, back to the menu.
-- Hosted as an Azure Static Web App; no backend, no progress kept between sessions.
+- Hosted as a static web app; no backend, no progress kept between sessions.
 
 ## Clarifying questions
 
@@ -91,20 +91,20 @@ Mark assumptions the user accepted as `(default accepted)`.
 
 ### Constraints
 
-- **Q:** Paste openings through an Azure backend in v1?
-  **A:** No: local import first, kept on the phone; the Azure backend (list and add openings) comes in a later
+- **Q:** Paste openings through a backend in v1?
+  **A:** No: local import first, kept on the phone; the backend (list and add openings) comes in a later
   version.
 - **Q:** Which format is pasted?
   **A:** PGN with variations (what a Lichess or chess.com study exports), not the indented text format of the PWA.
 - **Q:** What is out of scope for v1?
-  **A:** Azure backend, analysis engine (no Stockfish/evaluation), accounts/sync, building a line move by move on
+  **A:** Backend, analysis engine (no Stockfish/evaluation), accounts/sync, building a line move by move on
   the board.
 
 ## Decisions taken during discovery
 
 - New app (`kind: game` default), not an adoption: the Angular PWA is only an inspiration, its code is not imported.
   Its opening data is reused, converted to PGN.
-- Works fully offline; no backend in v1. When the Azure backend comes, the factory will not build or deploy it,
+- Works fully offline; no backend in v1. When the backend comes, the factory will not build or deploy it,
   will keep its address in git-ignored private config and prove the app against a mock API
   (`factory/knowledge/apps-with-backend.md`); this will likely switch the profile to `kind: app`.
 - No telemetry at all (`firebase: none`).
