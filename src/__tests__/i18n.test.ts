@@ -96,8 +96,7 @@ describe('plurals (AC-38)', () => {
 describe('French typography', () => {
   it('puts a no-break space before « : ? » and inside guillemets', () => {
     const { fr } = DICTIONARIES;
-    expect(fr.import.errors.illegal('5...Bxf2')).toBe('Coup illégal : 5...Bxf2');
-    expect(fr.detail.deleteConfirm('Slave')).toBe('Supprimer « Slave » et ta progression ?');
+    expect(fr.home.offline).toMatch(/^Mise à jour impossible : /);
     expect(texts(fr).filter((s) => / [:;!?](\s|$)/.test(s))).toEqual([]);
   });
 });

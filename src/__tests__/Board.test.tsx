@@ -54,9 +54,10 @@ describe('Board (tap-tap)', () => {
   });
 
   it('draws the pieces and the arrow', async () => {
-    await render(<Board fen={START} orientation="black" size={320} interactive onMove={jest.fn()} arrow={{ from: 'd2', to: 'd4' }} />);
+    await render(<Board fen={START} orientation="black" size={320} interactive onMove={jest.fn()} arrows={[{ from: 'd2', to: 'd4' }, { from: 'c2', to: 'c4' }]} />);
     expect(screen.getByTestId('piece-e1-wk')).toBeTruthy();
     expect(screen.getByTestId('piece-d8-bq')).toBeTruthy();
     expect(screen.getByTestId('arrow-d2-d4')).toBeTruthy();
+    expect(screen.getByTestId('arrow-c2-c4')).toBeTruthy();
   });
 });

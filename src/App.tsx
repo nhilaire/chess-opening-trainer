@@ -4,12 +4,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { buildQueue, QueueItem, Session, summary } from './game/session';
+import type { Opening } from './game/types';
 import { LanguageSetting } from './i18n';
 import { I18nProvider } from './i18n/I18nProvider';
 import { AboutScreen } from './screens/AboutScreen';
 import { DetailScreen } from './screens/DetailScreen';
 import { HomeScreen } from './screens/HomeScreen';
-import { ImportScreen } from './screens/ImportScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { SummaryScreen } from './screens/SummaryScreen';
 import { TrainingScreen } from './screens/TrainingScreen';
@@ -18,11 +18,11 @@ import { loadLanguageSetting, saveLanguageSetting } from './storage/languageSett
 import { ErrorBoundary } from './ui/ErrorBoundary';
 import { colors } from './ui/theme';
 
+// A training session keeps the openings it started with: an API refresh during the session never changes it.
 type Route =
   | { name: 'home' }
   | { name: 'detail'; id: string }
-  | { name: 'import' }
-  | { name: 'training'; queue: QueueItem[] }
+  | { name: 'training'; queue: QueueItem[]; openings: Opening[] }
   | { name: 'summary'; ok: number; failed: number; learnt: number }
   | { name: 'settings' }
   | { name: 'about' };
@@ -48,6 +48,12 @@ export default function App() {
     };
   }, []);
 
+  // The detail screen of an opening that a refresh removed goes back to home.
+  const detailGone = route.name === 'detail' && repertoire.ready && !repertoire.openings.some((o) => o.id === route.id);
+  useEffect(() => {
+    if (detailGone) setRoute({ name: 'home' });
+  }, [detailGone]);
+
   const changeLanguage = useCallback(async (value: LanguageSetting) => {
     setLanguageSetting(value);
     await saveLanguageSetting(value);
@@ -57,7 +63,7 @@ export default function App() {
   const endSession = useCallback((session: Session) => setRoute({ name: 'summary', ...summary(session) }), []);
   const train = (openingId?: string) => {
     const queue = buildQueue({ openings: repertoire.openings, progress: repertoire.progress, openingId });
-    if (queue.length) setRoute({ name: 'training', queue });
+    if (queue.length) setRoute({ name: 'training', queue, openings: repertoire.openings });
   };
 
   let content: React.ReactNode;
@@ -70,34 +76,14 @@ export default function App() {
   } else if (route.name === 'detail') {
     const opening = repertoire.openings.find((o) => o.id === route.id);
     content = opening ? (
-      <DetailScreen
-        opening={opening}
-        progress={repertoire.progress}
-        today={today()}
-        onTrain={() => train(opening.id)}
-        onRename={(name) => repertoire.rename(opening.id, name)}
-        onDelete={() => {
-          repertoire.remove(opening.id);
-          home();
-        }}
-        onBack={home}
-      />
+      <DetailScreen opening={opening} progress={repertoire.progress} today={today()} onTrain={() => train(opening.id)} onBack={home} />
     ) : null;
-  } else if (route.name === 'import') {
-    content = (
-      <ImportScreen
-        onImported={(opening) => {
-          repertoire.add(opening);
-          home();
-        }}
-        onBack={home}
-      />
-    );
   } else if (route.name === 'training') {
     content = (
       <TrainingScreen
         queue={route.queue}
-        openings={repertoire.openings}
+        openings={route.openings}
+        progress={repertoire.progress}
         feedback={repertoire.feedback}
         onLineDone={repertoire.recordLine}
         onExit={endSession}
@@ -122,9 +108,9 @@ export default function App() {
         openings={repertoire.openings}
         progress={repertoire.progress}
         today={today()}
+        refresh={repertoire.refresh}
         onReview={() => train()}
         onOpen={(id) => setRoute({ name: 'detail', id })}
-        onAdd={() => setRoute({ name: 'import' })}
         onSettings={() => setRoute({ name: 'settings' })}
       />
     );

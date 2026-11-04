@@ -32,6 +32,10 @@ describe('embedded openings (AC-05)', () => {
   const openings = createEmbeddedOpenings();
   const sources = { d4: 'd4-openings.txt', scandinavian: 'scandinavian.txt', d4Black: 'slav-black.txt' } as const;
 
+  it('carry the ids of the openings API (AC-05)', () => {
+    expect(openings.map((o) => o.id)).toEqual(['ouvertures-en-d4', 'defense-scandinave', 'ouvertures-d4-noirs']);
+  });
+
   it('are the 3 repertoires of the web app with their colours', () => {
     expect(openings.map((o) => [o.embeddedKey, o.color, o.origin])).toEqual([
       ['d4', 'white', 'embedded'],
@@ -47,7 +51,7 @@ describe('embedded openings (AC-05)', () => {
     expect(actual.sort()).toEqual(expected.sort());
   });
 
-  it('holds the Scandinavian 7. h3 line added in v0.2.0', () => {
+  it('holds the Scandinavian 7. h3 line', () => {
     const scandinavian = openings.find((o) => o.embeddedKey === 'scandinavian')!;
     expect(extractLines(scandinavian).map((l) => l.moves.join(' '))).toContain(
       'e4 d5 exd5 Qxd5 Nc3 Qa5 Bc4 Nf6 d3 c6 Bd2 Qc7 h3 Nbd7 Nf3 b5 Bb3 Nc5 Qe2 e6 d4 Nxb3 axb3 Bb7 O-O Be7',

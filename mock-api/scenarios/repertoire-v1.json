@@ -1,0 +1,96 @@
+{
+  "openings": [
+    {
+      "id": "test-italienne",
+      "name": "Italienne test",
+      "playerColor": "white",
+      "description": "Fake repertoire for e2e tests",
+      "variants": [],
+      "tree": [
+        {
+          "move": "e4",
+          "children": [
+            {
+              "move": "e5",
+              "children": [
+                {
+                  "move": "Nf3",
+                  "children": [
+                    {
+                      "move": "Nc6",
+                      "children": [
+                        {
+                          "move": "Bc4",
+                          "name": "Italienne"
+                        },
+                        {
+                          "move": "Bb5",
+                          "name": "Espagnole"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "move": "c5",
+              "name": "Sicilienne",
+              "children": [
+                {
+                  "move": "Nf3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "test-francaise",
+      "name": "Française test",
+      "playerColor": "black",
+      "description": "Fake",
+      "variants": [],
+      "tree": [
+        {
+          "move": "e4",
+          "children": [
+            {
+              "move": "e6",
+              "children": [
+                {
+                  "move": "d4",
+                  "children": [
+                    {
+                      "move": "d5",
+                      "children": [
+                        {
+                          "move": "Nc3",
+                          "children": [
+                            {
+                              "move": "Bb4"
+                            }
+                          ]
+                        },
+                        {
+                          "move": "e5",
+                          "name": "Avance",
+                          "children": [
+                            {
+                              "move": "c5"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

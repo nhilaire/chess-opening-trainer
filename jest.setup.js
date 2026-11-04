@@ -30,3 +30,9 @@ jest.mock('expo-haptics', () => ({
 }));
 
 jest.mock('react-native-safe-area-context', () => require('react-native-safe-area-context/jest/mock').default);
+
+// No test reaches the network: the openings API is offline unless a test sets its own fetcher
+// (jest.mocked(appFetcher) with the mock contract, see src/__tests__/screens.test.tsx).
+jest.mock('./src/api/appFetcher', () => ({
+  appFetcher: jest.fn(() => Promise.reject(new Error('offline in tests'))),
+}));

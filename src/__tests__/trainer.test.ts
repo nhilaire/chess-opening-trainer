@@ -1,6 +1,6 @@
 import { parsePgn } from '../game/pgn';
 import { extractLines } from '../game/repertoire';
-import { legalTargets, needsPromotion, outcome, piecesOf, reduce, Square, startLine, TrainerState } from '../game/trainer';
+import { labelOf, legalTargets, needsPromotion, opponentMove, outcome, piecesOf, reachedLine, reduce, Square, startLine, TrainerState } from '../game/trainer';
 import type { Color, MoveTree } from '../game/types';
 
 function tree(pgn: string): MoveTree {
@@ -9,15 +9,15 @@ function tree(pgn: string): MoveTree {
   return parsed.tree;
 }
 
-function setup(pgn: string, color: Color, mode: 'discover' | 'review', lineIndex = 0): TrainerState {
+function setup(pgn: string, color: Color, mode: 'discover' | 'review', lineIndex = 0, finished: string[] = []): TrainerState {
   const t = tree(pgn);
   const line = extractLines({ id: 'o', color, tree: t })[lineIndex];
-  return startLine(line, color, mode, t);
+  return startLine(line, color, mode, t, finished);
 }
 
 const play = (s: TrainerState, from: string, to: string, promotion?: 'q' | 'r' | 'b' | 'n') =>
   reduce(s, { type: 'play', from: from as Square, to: to as Square, promotion });
-const opponent = (s: TrainerState) => reduce(s, { type: 'opponent' });
+const opponent = (s: TrainerState, random = 0) => reduce(s, { type: 'opponent', random });
 
 // White repertoire: 1. d4 d5 2. c4, with 2. Nf3 as another branch.
 const WHITE = '1. d4 d5 2. c4 (2. Nf3 Nf6) e6 *';
@@ -53,14 +53,17 @@ describe('review mode (AC-22)', () => {
     expect(s.sound?.kind).toBe('success');
   });
 
-  it('another repertoire move from the position is « good move, not this line », not a try', () => {
-    let s = opponent(play(setup(WHITE, 'white', 'review'), 'd2', 'd4'));
-    s = play(s, 'g1', 'f3'); // 2. Nf3 is the other branch
-    expect(s.prompt).toBe('otherBranch');
+  it('another repertoire move is accepted and the line continues in that branch (AC-46)', () => {
+    let s = opponent(play(setup(WHITE, 'white', 'review'), 'd2', 'd4')); // target: d4 d5 c4 e6
+    s = play(s, 'g1', 'f3'); // 2. Nf3, the other branch
+    expect(s.prompt).toBe('opponent');
     expect(s.tries).toBe(0);
-    expect(s.ply).toBe(2);
-    s = play(s, 'e2', 'e4'); // first real mistake: still a retry
-    expect(s.prompt).toBe('wrong');
+    s = opponent(s);
+    expect(s.path).toEqual(['d4', 'd5', 'Nf3', 'Nf6']);
+    expect(outcome(s)).toBe('success');
+    const reached = reachedLine(s)!;
+    expect(reached.id).toBe('white|d4 d5 Nf3 Nf6');
+    expect(reached.id).not.toBe(s.line.id);
   });
 
   it('first wrong move: retry; second: arrow, line failed, the arrow move must be played', () => {
@@ -72,7 +75,7 @@ describe('review mode (AC-22)', () => {
     s = play(s, 'e2', 'e3');
     expect(s.prompt).toBe('answer');
     expect(s.failed).toBe(true);
-    expect(s.arrow).toEqual({ from: 'd2', to: 'd4' });
+    expect(s.arrows).toEqual([{ from: 'd2', to: 'd4' }]);
     s = play(s, 'd2', 'd4');
     s = opponent(s);
     s = play(s, 'c2', 'c4');
@@ -96,16 +99,76 @@ describe('discovery mode (AC-23)', () => {
   it('shows an arrow on each player move, accepts only that move, cannot fail', () => {
     let s = setup(WHITE, 'white', 'discover');
     expect(s.prompt).toBe('discover');
-    expect(s.arrow).toEqual({ from: 'd2', to: 'd4' });
+    expect(s.arrows).toEqual([{ from: 'd2', to: 'd4' }]);
     s = play(s, 'e2', 'e4');
     expect(s.prompt).toBe('playArrow');
-    s = play(s, 'g1', 'f3');
+    s = play(s, 'g1', 'f3'); // a repertoire move, but not the one shown
     expect(s.prompt).toBe('playArrow');
     expect(s.failed).toBe(false);
     s = opponent(play(s, 'd2', 'd4'));
-    expect(s.arrow).toEqual({ from: 'c2', to: 'c4' });
+    expect(s.arrows).toEqual([{ from: 'c2', to: 'c4' }]);
     s = opponent(play(s, 'c2', 'c4'));
     expect(outcome(s)).toBe('learnt');
+  });
+});
+
+describe('several repertoire moves for the player (AC-46, AC-22)', () => {
+  // After 1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Nf3 Bb4, White may play 5. cxd5 (Ragozin) or 5. Bg5.
+  const QGD = '1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Nf3 Bb4 5. cxd5 { Ragozin } (5. Bg5 { Bg5 } h6 6. Bxf6 Qxf6) 5... exd5 *';
+  const toMove5 = (s: TrainerState) => {
+    for (const [from, to] of [['d2', 'd4'], ['c2', 'c4'], ['b1', 'c3'], ['g1', 'f3']]) s = opponent(play(s, from, to));
+    return s;
+  };
+
+  it('accepts either move and continues in the chosen branch; the leaf reached is the finished line', () => {
+    const ragozin = toMove5(setup(QGD, 'white', 'review', 1)); // target: the Bg5 line
+    const viaCxd5 = opponent(play(ragozin, 'c4', 'd5'));
+    expect(viaCxd5.prompt).toBe('done');
+    expect(reachedLine(viaCxd5)).toMatchObject({ id: 'white|d4 d5 c4 e6 Nc3 Nf6 Nf3 Bb4 cxd5 exd5', label: 'Ragozin' });
+    const viaBg5 = opponent(opponent(play(play(toMove5(setup(QGD, 'white', 'review', 0)), 'c1', 'g5'), 'g5', 'f6')));
+    expect(viaBg5.path.slice(8)).toEqual(['Bg5', 'h6']);
+  });
+
+  it('after the second wrong move, shows an arrow on every repertoire move', () => {
+    let s = toMove5(setup(QGD, 'white', 'review'));
+    s = play(play(s, 'a2', 'a3'), 'h2', 'h3');
+    expect(s.prompt).toBe('answer');
+    expect(s.arrows).toEqual([{ from: 'c4', to: 'd5' }, { from: 'c1', to: 'g5' }]);
+  });
+
+  it('labels a path with the last name met', () => {
+    expect(labelOf(tree(QGD), ['d4', 'd5', 'c4', 'e6', 'Nc3', 'Nf6', 'Nf3', 'Bb4', 'Bg5', 'h6'])).toBe('Bg5');
+    expect(labelOf(tree(QGD), ['d4'])).toBeUndefined();
+  });
+});
+
+describe('opponent choice off the target (AC-47)', () => {
+  // Black repertoire: after 1. e4 the opponent... here White is the opponent with 3 branches after 1. e4 c5:
+  // 2. Nf3 (2 lines under it), 2. Nc3 (1 line), 2. c3 (1 line).
+  const SICI = '1. e4 c5 2. Nf3 (2. Nc3 Nc6) (2. c3 Nf6) 2... d6 (2... Nc6) *';
+
+  it('follows the target while on its path', () => {
+    const s = setup(SICI, 'black', 'review', 2); // target 2. Nc3 Nc6
+    expect(opponentMove(s, 0.99)).toBe('e4');
+    expect(opponentMove(play(opponent(s), 'c7', 'c5'), 0.99)).toBe('Nc3');
+  });
+
+  it('draws with weights = lines not finished in the session, all lines when none is left', () => {
+    // Off target: a target outside this tree, so the walk is free from the first move.
+    const free = (finished: string[]) => {
+      const base = setup(SICI, 'black', 'review', 0, finished);
+      return { ...base, line: { ...base.line, moves: [] }, prompt: 'opponent' as const };
+    };
+    let s = opponent(free([]));
+    s = play(s, 'c7', 'c5');
+    expect(s.prompt).toBe('opponent');
+    // 4 lines: Nf3 2, Nc3 1, c3 1 -> [0, .5) Nf3, [.5, .75) Nc3, [.75, 1) c3.
+    expect([0, 0.49, 0.5, 0.74, 0.75, 0.99].map((r) => opponentMove(s, r))).toEqual(['Nf3', 'Nf3', 'Nc3', 'Nc3', 'c3', 'c3']);
+    const done = ['black|e4 c5 Nf3 d6', 'black|e4 c5 Nf3 Nc6', 'black|e4 c5 c3 Nf6'];
+    const s2 = { ...s, finished: done };
+    expect([0, 0.5, 0.99].map((r) => opponentMove(s2, r))).toEqual(['Nc3', 'Nc3', 'Nc3']);
+    const s3 = { ...s, finished: [...done, 'black|e4 c5 Nc3 Nc6'] };
+    expect(opponentMove(s3, 0)).toBe('Nf3');
   });
 });
 

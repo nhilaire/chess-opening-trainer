@@ -7,6 +7,7 @@ import { extractLines } from '../game/repertoire';
 import { countLines, Progress } from '../game/scheduler';
 import type { Opening } from '../game/types';
 import { useI18n } from '../i18n/I18nProvider';
+import type { RefreshStatus } from '../state/useRepertoire';
 import { Button } from '../ui/Button';
 import { Screen } from '../ui/Screen';
 import { colors, font, spacing } from '../ui/theme';
@@ -15,19 +16,22 @@ type Props = {
   openings: Opening[];
   progress: Progress;
   today: string;
+  refresh: RefreshStatus;
   onReview: () => void;
   onOpen: (id: string) => void;
-  onAdd: () => void;
   onSettings: () => void;
 };
 
-export function HomeScreen({ openings, progress, today, onReview, onOpen, onAdd, onSettings }: Props) {
+// Openings are read-only here: they come from the openings API (or the embedded seed), managed in the web editor.
+export function HomeScreen({ openings, progress, today, refresh, onReview, onOpen, onSettings }: Props) {
   const { t, language } = useI18n();
   const rows = useMemo(
     () => openings.map((opening) => ({ opening, counts: countLines(extractLines(opening), progress, today) })),
     [openings, progress, today],
   );
-  const toReview = rows.reduce((n, row) => n + row.counts.total, 0); // every line, in random order (PRD v0.2.0)
+  const toReview = rows.reduce((n, row) => n + row.counts.total, 0); // every line, in random order
+  const status =
+    refresh.kind === 'updating' ? t.home.updating : refresh.kind === 'offline' ? t.home.offline : refresh.kind === 'partial' ? t.home.partial(refresh.skipped) : null;
 
   return (
     <Screen testID="home-screen">
@@ -39,6 +43,11 @@ export function HomeScreen({ openings, progress, today, onReview, onOpen, onAdd,
           <Text style={styles.settings}>{t.home.settings}</Text>
         </Pressable>
       </View>
+      {status && (
+        <Text style={styles.status} testID={`home-status-${refresh.kind}`}>
+          {status}
+        </Text>
+      )}
       <Button
         label={toReview > 0 ? t.home.review(toReview) : t.home.nothing}
         onPress={onReview}
@@ -73,7 +82,6 @@ export function HomeScreen({ openings, progress, today, onReview, onOpen, onAdd,
           );
         })}
       </ScrollView>
-      <Button label={t.home.add} onPress={onAdd} variant="secondary" testID="home-add" />
     </Screen>
   );
 }
@@ -82,6 +90,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
   title: { color: colors.text, fontSize: font.heading, fontWeight: '800', flexShrink: 1 },
   settings: { color: colors.muted, fontSize: font.body, fontWeight: '600' },
+  status: { color: colors.muted, fontSize: font.small },
   list: { flex: 1 },
   listContent: { gap: spacing.sm, paddingVertical: spacing.sm },
   empty: { color: colors.muted, fontSize: font.body, textAlign: 'center', marginTop: spacing.xl },

@@ -115,13 +115,13 @@ export function createMockServer(contract, { scenariosDir = path.join(HERE, 'sce
     return f || null;
   }
 
-  function send(res, status, body) {
+  function send(res, status, body, headers = {}) {
     if (body === undefined || body === null) {
-      res.writeHead(status).end();
+      res.writeHead(status, headers).end();
     } else if (typeof body === 'string') {
-      res.writeHead(status, { 'Content-Type': 'text/plain; charset=utf-8' }).end(body);
+      res.writeHead(status, { 'Content-Type': 'text/plain; charset=utf-8', ...headers }).end(body);
     } else {
-      res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' }).end(JSON.stringify(body));
+      res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', ...headers }).end(JSON.stringify(body));
     }
   }
 
@@ -172,15 +172,17 @@ export function createMockServer(contract, { scenariosDir = path.join(HERE, 'sce
       setTimeout(() => {
         let status;
         let out;
+        let headers = {};
         if (fault) {
           status = fault.status;
           out = { error: 'injected fault' };
           entry.outcome = 'fault';
         } else {
           try {
-            const r = contract.handle({ method: req.method, path: url.pathname, query: url.searchParams, body });
+            const r = contract.handle({ method: req.method, path: url.pathname, query: url.searchParams, body, headers: req.headers });
             status = r ? r.status ?? 200 : 404;
             out = r ? r.body : { error: `no route ${req.method} ${url.pathname}` };
+            headers = (r && r.headers) || {};
             entry.outcome = r ? 'ok' : 'no-route';
           } catch (err) {
             status = 500;
@@ -190,7 +192,7 @@ export function createMockServer(contract, { scenariosDir = path.join(HERE, 'sce
         }
         entry.status = status;
         log(`${req.method} ${req.url} -> ${status}${entry.outcome !== 'ok' ? ` (${entry.outcome})` : ''}`);
-        send(res, status, out);
+        send(res, status, out, headers);
       }, latencyPath && !latencyPath.test(url.pathname + url.search) ? 0 : latencyMs);
     });
   });

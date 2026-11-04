@@ -1,0 +1,86 @@
+{
+  "openings": [
+    {
+      "id": "test-italienne",
+      "name": "Italienne test",
+      "playerColor": "white",
+      "description": "Fake repertoire for e2e tests",
+      "variants": [],
+      "tree": [
+        {
+          "move": "e4",
+          "children": [
+            {
+              "move": "e5",
+              "children": [
+                {
+                  "move": "Nf3",
+                  "children": [
+                    {
+                      "move": "Nc6",
+                      "children": [
+                        {
+                          "move": "Bc4",
+                          "name": "Italienne"
+                        },
+                        {
+                          "move": "Bb5",
+                          "name": "Espagnole"
+                        },
+                        {
+                          "move": "d4",
+                          "name": "Écossaise",
+                          "children": [
+                            {
+                              "move": "exd4"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "move": "c5",
+              "name": "Sicilienne",
+              "children": [
+                {
+                  "move": "Nf3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "test-caro",
+      "name": "Caro-Kann test",
+      "playerColor": "black",
+      "description": "Fake",
+      "variants": [],
+      "tree": [
+        {
+          "move": "e4",
+          "children": [
+            {
+              "move": "c6",
+              "children": [
+                {
+                  "move": "d4",
+                  "children": [
+                    {
+                      "move": "d5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -3,14 +3,16 @@
 import { formatter } from './format';
 import type { Strings } from './types';
 
-const { count, label } = formatter('en-US');
+const { count } = formatter('en-US');
 
 export const en: Strings = {
   home: {
     review: (n: number) => `Review (${count(n, 'line', 'lines')})`,
     nothing: 'Nothing to review',
-    empty: 'No opening yet. Add one by pasting a PGN.',
-    add: 'Add an opening',
+    empty: 'No opening yet. Add some in your editor.',
+    updating: 'Updating openings…',
+    offline: 'Could not update: last saved openings',
+    partial: (n: number) => count(n, 'unreadable opening skipped', 'unreadable openings skipped'),
     counts: (mastered: number, due: number, fresh: number) => `${mastered} mastered · ${due} to review · ${fresh} new`,
     settings: 'Settings',
   },
@@ -26,37 +28,17 @@ export const en: Strings = {
   detail: {
     train: 'Train this opening',
     lines: (n: number) => count(n, 'line', 'lines'),
-    rename: 'Rename',
-    delete: 'Delete',
-    deleteConfirm: (name: string) => `Delete "${name}" and your progress?`,
   },
   common: {
-    cancel: 'Cancel',
-    save: 'Save',
     back: 'Back',
-  },
-  import: {
-    title: 'Add an opening',
-    paste: 'Paste your PGN here',
-    name: 'Opening name',
-    color: 'You play',
-    submit: 'Import',
-    errors: {
-      empty: 'Paste a PGN first.',
-      illegal: (move: string) => label('Illegal move', move),
-      fen: 'Only games from the starting position are accepted.',
-      tooBig: 'PGN too long (100,000 characters and 1,000 opening lines at most).',
-      noPlayerMove: 'No line contains a move for your colour.',
-      name: 'Give a name (40 characters at most).',
-    },
   },
   train: {
     yourMove: 'Your move',
     discover: 'Watch and replay',
     playArrow: 'Play the move shown',
     wrong: 'Not that move, try again',
-    otherBranch: 'Good move, but not the one of this line',
     answer: 'Here is the right move',
+    answers: 'Here are the right moves',
     progress: (index: number, total: number) => `Line ${index} / ${total}`,
     stop: 'Stop',
     success: 'Line succeeded',

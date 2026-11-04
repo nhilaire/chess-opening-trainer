@@ -17,7 +17,7 @@ type Props = {
   orientation: Color;
   size: number;
   lastMove?: Arrow;
-  arrow?: Arrow;
+  arrows?: Arrow[]; // green arrows (discovery: the move to play; after two errors: every repertoire move)
   interactive: boolean; // false while the opponent plays or when the line is over
   onMove: (from: Square, to: Square) => void;
 };
@@ -69,7 +69,7 @@ function ArrowShape({ arrow, cell, orientation }: { arrow: Arrow; cell: number; 
   );
 }
 
-export function Board({ fen, orientation, size, lastMove, arrow, interactive, onMove }: Props) {
+export function Board({ fen, orientation, size, lastMove, arrows = [], interactive, onMove }: Props) {
   const cell = size / 8;
   const [selected, setSelected] = useState<Square | null>(null);
   const [dragFrom, setDragFrom] = useState<Square | null>(null);
@@ -167,11 +167,11 @@ export function Board({ fen, orientation, size, lastMove, arrow, interactive, on
             </View>
           );
         })}
-        {arrow && (
-          <Svg pointerEvents="none" width={size} height={size} style={StyleSheet.absoluteFill} testID={`arrow-${arrow.from}-${arrow.to}`}>
+        {arrows.map((arrow) => (
+          <Svg key={`${arrow.from}-${arrow.to}`} pointerEvents="none" width={size} height={size} style={StyleSheet.absoluteFill} testID={`arrow-${arrow.from}-${arrow.to}`}>
             <ArrowShape arrow={arrow} cell={cell} orientation={orientation} />
           </Svg>
-        )}
+        ))}
         {dragged && (
           <Animated.View pointerEvents="none" style={[styles.piece, { left: 0, top: 0, width: cell, height: cell }, dragStyle]}>
             <PieceImage piece={dragged} cell={cell} />

@@ -1,14 +1,14 @@
 import { parsePgn } from '../game/pgn';
 import { extractLines } from '../game/repertoire';
 import { Progress } from '../game/scheduler';
-import { buildQueue, currentItem, finishLine, isOver, startSession, summary } from '../game/session';
+import { buildQueue, currentItem, finishedIds, finishLine, isOver, startSession, summary } from '../game/session';
 import { createEmbeddedOpenings } from '../game/embedded';
 import type { Color, Opening } from '../game/types';
 
 function opening(id: string, pgn: string, color: Color = 'white'): Opening {
   const parsed = parsePgn(pgn);
   if (!parsed.ok) throw new Error('bad test PGN');
-  return { id, name: id, color, origin: 'imported', tree: parsed.tree };
+  return { id, name: id, color, origin: 'api', tree: parsed.tree };
 }
 
 // A: 3 lines, B: 2 lines, C: 12 lines.
@@ -88,6 +88,21 @@ describe('session (AC-17, AC-15 summary)', () => {
     s = finishLine(s, 'failure'); // a1 again: not re-queued a second time
     expect(isOver(s)).toBe(true);
     expect(summary(s)).toEqual({ ok: 1, failed: 1, learnt: 1 });
+  });
+
+  it('records the line reached, removes it from the rest of the queue and re-queues it when failed (AC-46)', () => {
+    const [l1, l2, l3] = extractLines(A);
+    let s = startSession([l1, l2, l3].map((line) => ({ line, mode: 'review' as const })));
+    s = finishLine(s, 'success', l3); // target l1, the player went to l3
+    expect(summary(s)).toEqual({ ok: 1, failed: 0, learnt: 0 });
+    expect(s.queue.map((q) => q.line.id)).toEqual([l1.id, l2.id]); // l3 no longer waiting
+    expect(finishedIds(s)).toEqual([l3.id]);
+    s = finishLine(s, 'failure', l1); // target l2, reached l1
+    expect(s.queue.map((q) => q.line.id)).toEqual([l1.id, l2.id, l1.id]);
+    expect(isOver(s)).toBe(false);
+    s = finishLine(s, 'learnt'); // the re-queued l1
+    expect(isOver(s)).toBe(true);
+    expect(summary(s)).toEqual({ ok: 1, failed: 1, learnt: 0 });
   });
 
   it('keeps a line failed then passed in the session as « à revoir »', () => {

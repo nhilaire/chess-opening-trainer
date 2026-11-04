@@ -1,0 +1,31 @@
+{
+  "openings": [
+    {
+      "id": "test-court",
+      "name": "Court",
+      "playerColor": "white",
+      "description": "Fake one-line repertoire",
+      "variants": [],
+      "tree": [
+        {
+          "move": "d4",
+          "children": [
+            {
+              "move": "d5",
+              "children": [
+                {
+                  "move": "c4",
+                  "children": [
+                    {
+                      "move": "e6"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

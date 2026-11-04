@@ -3,14 +3,16 @@
 // Chess notation stays standard SAN (K Q R B N) in every language.
 import { formatter, NBSP } from './format';
 
-const { count, integer, label } = formatter('fr-FR');
+const { count } = formatter('fr-FR');
 
 export const fr = {
   home: {
     review: (n: number) => `Réviser (${count(n, 'ligne', 'lignes')})`,
     nothing: 'Rien à réviser',
-    empty: 'Aucune ouverture. Ajoute-en une en collant un PGN.',
-    add: 'Ajouter une ouverture',
+    empty: 'Aucune ouverture. Ajoute-en depuis ton éditeur.',
+    updating: 'Mise à jour des ouvertures…',
+    offline: `Mise à jour impossible${NBSP}: dernières ouvertures enregistrées`,
+    partial: (n: number) => count(n, 'ouverture illisible ignorée', 'ouvertures illisibles ignorées'),
     counts: (mastered: number, due: number, fresh: number) =>
       `${count(mastered, 'maîtrisée', 'maîtrisées')} · ${due} à revoir · ${count(fresh, 'nouvelle', 'nouvelles')}`,
     settings: 'Réglages',
@@ -19,7 +21,7 @@ export const fr = {
     white: 'Blancs',
     black: 'Noirs',
   },
-  // Names of the embedded openings until the player renames them.
+  // Names of the embedded openings (offline seed); API openings show their own name.
   openings: {
     d4: 'Ouvertures en d4',
     scandinavian: 'Défense Scandinave',
@@ -28,37 +30,17 @@ export const fr = {
   detail: {
     train: "S'entraîner sur cette ouverture",
     lines: (n: number) => count(n, 'ligne', 'lignes'),
-    rename: 'Renommer',
-    delete: 'Supprimer',
-    deleteConfirm: (name: string) => `Supprimer «${NBSP}${name}${NBSP}» et ta progression${NBSP}?`,
   },
   common: {
-    cancel: 'Annuler',
-    save: 'Enregistrer',
     back: 'Retour',
-  },
-  import: {
-    title: 'Ajouter une ouverture',
-    paste: 'Colle ton PGN ici',
-    name: "Nom de l'ouverture",
-    color: 'Tu joues',
-    submit: 'Importer',
-    errors: {
-      empty: "Colle d'abord un PGN.",
-      illegal: (move: string) => label('Coup illégal', move),
-      fen: 'Seules les parties depuis la position initiale sont acceptées.',
-      tooBig: `PGN trop long (${integer(100_000)} caractères et ${integer(1_000)} lignes d'ouverture au maximum).`,
-      noPlayerMove: 'Aucune ligne ne contient de coup pour ta couleur.',
-      name: 'Donne un nom (40 caractères au maximum).',
-    },
   },
   train: {
     yourMove: 'À toi de jouer',
     discover: 'Regarde et rejoue',
     playArrow: 'Joue le coup indiqué',
     wrong: 'Pas ce coup-là, réessaie',
-    otherBranch: 'Bon coup, mais pas celui de cette ligne',
     answer: 'Voici le bon coup',
+    answers: 'Voici les bons coups',
     progress: (index: number, total: number) => `Ligne ${index} / ${total}`,
     stop: 'Arrêter',
     success: 'Ligne réussie',

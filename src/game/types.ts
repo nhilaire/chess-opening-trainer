@@ -13,14 +13,14 @@ export interface MoveNode {
 // The tree starts at the standard start position: `tree` holds the possible first moves.
 export type MoveTree = MoveNode[];
 
-// The 3 openings shipped in the APK; their name follows the UI language until the player renames them.
+// The 3 openings shipped in the APK (offline seed until the openings API answers); their name follows the UI language.
 export type EmbeddedKey = 'd4' | 'scandinavian' | 'd4Black';
 
 export interface Opening {
   id: string;
-  name: string; // the given name; empty for an embedded opening that was never renamed
+  name: string; // the API name; empty for an embedded opening (localized name)
   embeddedKey?: EmbeddedKey;
   color: Color;
-  origin: 'embedded' | 'imported';
+  origin: 'embedded' | 'api';
   tree: MoveTree;
 }

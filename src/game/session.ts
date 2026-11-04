@@ -47,20 +47,30 @@ export function currentItem(session: Session): QueueItem | undefined {
   return session.queue[session.index];
 }
 
-// Records the outcome of the current line and moves on. A failed line is put back at the end once per session.
-export function finishLine(session: Session, outcome: Outcome): Session {
+// Records the outcome of the current item and moves on. `reached` is the line actually finished (the leaf reached
+// in review, which may differ from the item's target): it is removed from the rest of the queue, and put back once
+// at the end when failed.
+export function finishLine(session: Session, outcome: Outcome, reached?: Line): Session {
   const item = currentItem(session);
   if (!item) return session;
-  const id = item.line.id;
+  const line = reached ?? item.line;
+  const id = line.id;
   const previous = session.results[id];
   const result = outcome === 'failure' || previous === 'failed' ? 'failed' : outcome === 'learnt' ? 'learnt' : 'ok';
   const requeue = outcome === 'failure' && !session.requeued.includes(id);
+  const done = session.queue.slice(0, session.index + 1);
+  const rest = session.queue.slice(session.index + 1).filter((q) => q.line.id !== id);
   return {
-    queue: requeue ? [...session.queue, { line: item.line, mode: 'review' }] : session.queue,
+    queue: [...done, ...rest, ...(requeue ? [{ line, mode: 'review' as const }] : [])],
     index: session.index + 1,
     requeued: requeue ? [...session.requeued, id] : session.requeued,
     results: { ...session.results, [id]: result },
   };
+}
+
+// Lines finished so far in the session (the opponent prefers the others).
+export function finishedIds(session: Session): string[] {
+  return Object.keys(session.results);
 }
 
 export function isOver(session: Session): boolean {
