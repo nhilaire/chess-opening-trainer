@@ -19,7 +19,7 @@ Last updated: 2026-11-04
 > delete); in review any repertoire move of the player is accepted and the line continues in the chosen branch;
 > after the second wrong move every expected move gets an arrow. Removed: PGN import rules, Import screen,
 > criteria 07 to 14 (import, rename, delete) and 39 of v0.2.0 (numbers not reused). Amended: summary, screens, repertoire model, embedded openings, playing a line,
-> persistence, non-functional, AC-04..AC-06, AC-20, AC-22, AC-26, AC-36, AC-37, copy. New: AC-40..AC-49.
+> persistence, non-functional, AC-04..AC-06, AC-20, AC-22, AC-26, AC-36, AC-37, copy. New: AC-40..AC-50 (icon and splash).
 
 > Written in English. Player-facing text is quoted in the "Player copy" section, in every language of the game
 > (`factory-app.json` "languages"; French is the reference).
@@ -211,6 +211,10 @@ flowchart LR
 - Sounds (free licence or generated): move, capture, error, line succeeded; all off with the sound setting.
 - Vibration: short pulse on a wrong move; off with the vibration setting.
 - Animations: piece moves ~150 ms; no other effects. Portrait only.
+- Icon and splash (v0.3.0, user request): the cburnett white knight on a corner of the app's board with the green
+  arrow making a knight's move; adaptive icon (board background, knight + arrow foreground in the safe zone,
+  monochrome silhouette); splash = the same emblem on the app background `#312e2b`. Drawn by
+  `scripts/generate-icons.mjs`, no other asset.
 
 ## Telemetry events
 
@@ -288,6 +292,8 @@ Openings API
   Bg5), when the player plays either, then it is accepted and the line continues in that branch; the finished line is
   the leaf reached and its progress is updated, not the target's; a reached line still queued later is removed from
   the queue; a never-learnt line reached and succeeded counts as « apprise »; a failed reached line is re-queued once.
+- AC-50 [manual] On the phone, the launcher icon shows the knight, its board and the green arrow (adaptive, readable
+  in the round mask) and the app opens on a splash with the same emblem on the dark background, without a white flash.
 - AC-49 [unit] Given a refresh that completes during a session, then the session's remaining lines are unchanged;
   given the detail screen of an opening that the refresh removed, then the app goes back to home.
 - AC-47 [unit] Given review mode once off the target's path, then the opponent's move is drawn with weights equal to
