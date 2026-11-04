@@ -46,5 +46,6 @@ module.exports = ({ config }) => ({
   plugins: [
     ...(config.plugins || []),
     './plugins/with-release-signing',
+    './plugins/with-localhost-cleartext',
   ],
 });

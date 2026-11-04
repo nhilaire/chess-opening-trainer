@@ -34,7 +34,7 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 - [x] T-25 v0.3.0 trainer: review walk accepting any repertoire move, opponent follows the target then weighted draw, arrows on every expected move after the 2nd error (AC-21, AC-22, AC-23, AC-24, AC-46, AC-47) - proof: unit
 - [x] T-26 v0.3.0 session: finished line = leaf reached, removed from the rest of the queue, re-queue of the reached line, new line reached counted learnt (AC-15, AC-16, AC-17, AC-18, AC-19, AC-46) - proof: unit
 - [x] T-27 v0.3.0 screens: no import, rename or delete; home updating / offline / partial lines; refresh never touches a running session; detail of a removed opening back to home; plural answer copy (AC-20, AC-26, AC-36, AC-38, AC-49) - proof: unit
-- [ ] T-28 v0.3.0 build config: env.ts placeholder, env.local.ts private, env.e2e.ts mock, metro resolver on FACTORY_APP_ENV, e2e package suffix, cleartext to localhost only (AC-42, AC-48) - proof: device
+- [x] T-28 v0.3.0 build config: env.ts placeholder, env.local.ts private, env.e2e.ts mock, metro resolver on FACTORY_APP_ENV, e2e package suffix, cleartext to localhost only (AC-42, AC-48) - proof: device
 - [ ] T-29 v0.3.0 mock API (contract with ETag/304, fake repertoire scenarios) and Maestro flows rewritten for the API: offline first launch, API openings, change after restart, offline after restart, slow API (AC-02, AC-04, AC-20, AC-25, AC-26, AC-28, AC-29, AC-31, AC-32, AC-34, AC-43, AC-44) - proof: e2e
 - [ ] T-30 v0.3.0 device checks: launcher names, permissions, no private host in git, e2e APK mock-only, prod APK not attached to a release (AC-03, AC-33, AC-35, AC-48) - proof: device
 ## Notes
