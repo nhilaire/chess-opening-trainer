@@ -11,14 +11,14 @@ Last updated: 2026-11-04
 > cette ouverture » queue every line of their scope in random order (new lines still in discovery mode); a line
 > played before its due date only moves when it is failed. Amended: core loop, home, rules "Spaced repetition" and
 > "Session queue", persistence, AC-16..AC-20, AC-25, AC-30, `home.nothing`. Also a new Scandinavian line (7. h3) and
-> embedded openings updated on existing installs (AC-39).
+> embedded openings updated on existing installs (criterion 39 of v0.2.0, removed in v0.3.0).
 
 > v0.3.0 amendment (user request, replaces v0.2.0 which was not accepted): the openings come from the user's own
 > read-only openings API (section "Openings API"); the API response overwrites the stored openings, the embedded
 > ones are only the offline first-launch seed; openings are read-only on the phone (no PGN import, rename or
 > delete); in review any repertoire move of the player is accepted and the line continues in the chosen branch;
 > after the second wrong move every expected move gets an arrow. Removed: PGN import rules, Import screen,
-> AC-07..AC-14, AC-39 (v0.2.0). Amended: summary, screens, repertoire model, embedded openings, playing a line,
+> criteria 07 to 14 (import, rename, delete) and 39 of v0.2.0 (numbers not reused). Amended: summary, screens, repertoire model, embedded openings, playing a line,
 > persistence, non-functional, AC-04..AC-06, AC-20, AC-22, AC-26, AC-36, AC-37, copy. New: AC-40..AC-49.
 
 > Written in English. Player-facing text is quoted in the "Player copy" section, in every language of the game
@@ -121,7 +121,7 @@ flowchart LR
   opening (`id`, `name`, `playerColor`, `tree`). Each request sends the ETag stored for that URL in `If-None-Match`
   when there is one; `304 Not Modified` means the stored copy of that URL is still valid. Timeout 45 s per request
   (the free server may wake up slowly).
-- Shapes (the mock `mock-api/contract.mjs` is the executable reference): the list is a top-level JSON array of
+- Shapes (the mock `mock-api/contract.cjs` is the executable reference): the list is a top-level JSON array of
   objects with a string `id`; a detail is an object with `id`, `name` (string), `playerColor` (`white`|`black`) and
   `tree`, an array of root nodes (the first moves); a node is `{ move: string, name?: string, children?: node[] }`.
   Other fields (`description`, `variants`, `lineCount`, `updatedAt`...) are ignored. The id goes in the path
