@@ -28,6 +28,15 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 - [x] T-20 v0.2.0 Maestro flows independent of the random order: smoke checks the total and any arrow, empty state after deleting all openings (AC-20, AC-25) - proof: e2e
 - [x] T-21 v0.2.0 Scandinavian 7. h3 line, embedded openings refreshed on existing installs (AC-05, AC-39) - proof: unit
 
+- [ ] T-22 v0.3.0 API model: detail JSON to opening (shape check, sibling merge, legality with chess.js, no player move = invalid), line ids colour|moves, labels from `name` (AC-05, AC-06, AC-37) - proof: unit
+- [ ] T-23 v0.3.0 API client and refresh: GET only, 45 s timeout, If-None-Match/304, list then details, replace on success, skip invalid openings, keep everything on failure (AC-40, AC-41, AC-42) - proof: unit
+- [ ] T-24 v0.3.0 storage: embedded seed with API ids, ETags, v0.2.0 progress keys rewritten colour|moves, missing lines ignored (AC-30, AC-45) - proof: unit
+- [ ] T-25 v0.3.0 trainer: review walk accepting any repertoire move, opponent follows the target then weighted draw, arrows on every expected move after the 2nd error (AC-21, AC-22, AC-23, AC-24, AC-46, AC-47) - proof: unit
+- [ ] T-26 v0.3.0 session: finished line = leaf reached, removed from the rest of the queue, re-queue of the reached line, new line reached counted learnt (AC-15, AC-16, AC-17, AC-18, AC-19, AC-46) - proof: unit
+- [ ] T-27 v0.3.0 screens: no import, rename or delete; home updating / offline / partial lines; refresh never touches a running session; detail of a removed opening back to home; plural answer copy (AC-20, AC-26, AC-36, AC-38, AC-49) - proof: unit
+- [ ] T-28 v0.3.0 build config: env.ts placeholder, env.local.ts private, env.e2e.ts mock, metro resolver on FACTORY_APP_ENV, e2e package suffix, cleartext to localhost only (AC-42, AC-48) - proof: device
+- [ ] T-29 v0.3.0 mock API (contract with ETag/304, fake repertoire scenarios) and Maestro flows rewritten for the API: offline first launch, API openings, change after restart, offline after restart, slow API (AC-02, AC-04, AC-20, AC-25, AC-26, AC-28, AC-29, AC-31, AC-32, AC-34, AC-43, AC-44) - proof: e2e
+- [ ] T-30 v0.3.0 device checks: launcher names, permissions, no private host in git, e2e APK mock-only, prod APK not attached to a release (AC-03, AC-33, AC-35, AC-48) - proof: device
 ## Notes
 
 - Order: engine (T-02..T-07) before screens; every rule is a pure function in `src/game/` with `today` (local date

@@ -112,3 +112,24 @@ Mark assumptions the user accepted as `(default accepted)`.
   hard-coded opening list → user-managed repertoire with PGN paste; no memory between sessions → saved progress.
 - A "line" is a path from the start position to a leaf of the repertoire tree, as in the PWA.
 - Orientation portrait, board flipped when the user plays Black. (default accepted)
+
+## v0.3.0 addendum (2026-11-04)
+
+The user asked for a version that reads the openings from their own public read-only API (web editor), with a spec
+(endpoints, ETag/304, 45 s timeout, offline cache, review accepting any repertoire move). The base URL is private:
+local git-ignored config only, never committed or published. Answers in this session:
+
+- **Q:** What becomes of the embedded openings?
+  **A:** Used only when the API is unreachable at first launch; as soon as the API answers it overwrites the stored
+  openings, so the latest version is available offline.
+- **Q:** Openings imported by PGN on the phone?
+  **A:** No more import on the phone: openings are added only through the web editor and the API.
+- **Q:** Rename/delete of API openings on the phone?
+  **A:** Read-only on the phone (managed in the web editor).
+- **Q:** In review, another repertoire move than the target line's?
+  **A:** Accept it and follow the chosen branch (default accepted).
+- **Q:** On a wrong move?
+  **A:** One more try, then an arrow for every expected move (default accepted).
+- **Q:** Publication, since the APK holds the API address?
+  **A:** Public repository with the placeholder address, no APK attached to any GitHub release (default accepted).
+- v0.2.0 (not accepted on the phone) is replaced by v0.3.0.

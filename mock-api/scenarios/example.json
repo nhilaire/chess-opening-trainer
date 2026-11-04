@@ -1,0 +1,7 @@
+{
+  "description": "Example scenario: fake data only, never a real person.",
+  "items": [
+    { "id": "i1", "label": "Example A" },
+    { "id": "i2", "label": "Example B" }
+  ]
+}

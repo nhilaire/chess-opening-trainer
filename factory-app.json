@@ -13,5 +13,16 @@
     "en": "My Openings"
   },
   "firebase": "none",
-  "factoryVersion": "1.0.0"
+  "factoryVersion": "1.0.0",
+  "privateConfig": [
+    "src/config/env.local.ts"
+  ],
+  "e2e": {
+    "packageSuffix": ".e2e",
+    "mock": {
+      "script": "mock-api/server.mjs",
+      "port": 8787,
+      "ready": "/__health"
+    }
+  }
 }
