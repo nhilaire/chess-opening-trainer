@@ -74,6 +74,7 @@ export function Board({ fen, orientation, size, lastMove, arrows = [], interacti
   const [selected, setSelected] = useState<Square | null>(null);
   const [dragFrom, setDragFrom] = useState<Square | null>(null);
   const dragRef = useRef<Square | null>(null); // read by the gesture callbacks (state may lag a render behind)
+  const touchRef = useRef<Square | null>(null); // square under the finger at touch-down
   const dragX = useSharedValue(0);
   const dragY = useSharedValue(0);
 
@@ -100,11 +101,16 @@ export function Board({ fen, orientation, size, lastMove, arrows = [], interacti
   };
 
   const pan = Gesture.Pan()
+    .withTestId('board-pan')
     .runOnJS(true)
     .minDistance(8)
     .enabled(interactive)
+    // The piece is the one touched, not the one under the finger once the 8 px threshold is crossed.
+    .onBegin((e) => {
+      touchRef.current = squareAt(e.x, e.y, cell, orientation);
+    })
     .onStart((e) => {
-      const square = squareAt(e.x, e.y, cell, orientation);
+      const square = touchRef.current;
       if (!ownPiece(square)) return;
       dragX.value = e.x - cell / 2;
       dragY.value = e.y - cell / 2;
@@ -122,6 +128,7 @@ export function Board({ fen, orientation, size, lastMove, arrows = [], interacti
       if (start && to && to !== start) onMove(start, to);
     })
     .onFinalize(() => {
+      touchRef.current = null;
       dragRef.current = null;
       setDragFrom(null);
     });

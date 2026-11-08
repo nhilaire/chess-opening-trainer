@@ -40,7 +40,7 @@ Format: `- [ ] T-01 Title (AC-01, AC-02) - proof: unit|e2e|device`. Check the bo
 - [x] T-31 v0.3.0 icon, adaptive icon and splash drawn by scripts/generate-icons.mjs, expo-splash-screen on the app background (AC-50) - proof: device
 - [x] T-32 v0.3.1 home "today" refreshed when the app comes back to the foreground and on navigation, not only at App render (AC-19) - proof: unit
 - [x] T-33 v0.3.1 refresh: a 304 without stored copy retries once without If-None-Match, duplicate-id guard on 304, no ETag kept without its saved copy, list ETag dropped with malformed listIds (AC-40, AC-41) - proof: unit
-- [ ] T-34 v0.3.1 board drag: origin square taken at touch-down, not after the 8 px pan threshold (AC-27) - proof: unit
+- [x] T-34 v0.3.1 board drag: origin square taken at touch-down, not after the 8 px pan threshold (AC-27) - proof: unit
 - [ ] T-35 v0.3.1 session summary: a line learnt then reached again stays counted as learnt (AC-46) - proof: unit
 
 ## Notes

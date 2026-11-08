@@ -1,5 +1,7 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Chess } from 'chess.js';
+import { State } from 'react-native-gesture-handler';
+import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 
 import { Board } from '../ui/Board';
 import { squareAt, squareOrigin, squaresInView } from '../ui/boardGeometry';
@@ -59,5 +61,31 @@ describe('Board (tap-tap)', () => {
     expect(screen.getByTestId('piece-d8-bq')).toBeTruthy();
     expect(screen.getByTestId('arrow-d2-d4')).toBeTruthy();
     expect(screen.getByTestId('arrow-c2-c4')).toBeTruthy();
+  });
+});
+
+describe('Board (drag, AC-27)', () => {
+  // size 320: 40 px squares; e2 spans x 160-200, y 240-280 for White, e3 is just above it.
+  const drag = (points: { x: number; y: number }[]) =>
+    act(() =>
+      fireGestureHandler(getByGestureTestId('board-pan'), [
+        { state: State.BEGAN, ...points[0] },
+        ...points.slice(1, -1).map((p, i) => (i === 0 ? { state: State.ACTIVE, ...p } : p)),
+        { state: State.END, ...points[points.length - 1] },
+      ]),
+    );
+
+  it('drags the piece under the finger at touch-down, even when the 8 px threshold is crossed on another square', async () => {
+    const onMove = jest.fn();
+    await render(<Board fen={START} orientation="white" size={320} interactive onMove={onMove} />);
+    await drag([{ x: 180, y: 243 }, { x: 180, y: 235 }, { x: 180, y: 200 }, { x: 180, y: 180 }]);
+    expect(onMove).toHaveBeenCalledWith('e2', 'e4');
+  });
+
+  it('does not drag from an empty square that the finger leaves for a piece', async () => {
+    const onMove = jest.fn();
+    await render(<Board fen={START} orientation="white" size={320} interactive onMove={onMove} />);
+    await drag([{ x: 180, y: 237 }, { x: 180, y: 245 }, { x: 180, y: 260 }, { x: 180, y: 180 }]);
+    expect(onMove).not.toHaveBeenCalled();
   });
 });
