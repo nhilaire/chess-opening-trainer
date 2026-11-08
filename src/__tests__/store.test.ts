@@ -71,6 +71,44 @@ describe('persistence (AC-30)', () => {
     });
   });
 
+  it('drops the list ETag when the stored list ids are malformed or missing, keeps the detail ETags', () => {
+    const openings = JSON.stringify([]);
+    const etags = { '/api/openings': '"l1"', '/api/openings/a': '"d1"' };
+    expect(decodeState({ ...empty, openings, api: JSON.stringify({ etags, listIds: ['a', 2] }) }).api).toEqual({ etags: { '/api/openings/a': '"d1"' } });
+    expect(decodeState({ ...empty, openings, api: JSON.stringify({ etags }) }).api).toEqual({ etags: { '/api/openings/a': '"d1"' } });
+    expect(decodeState({ ...empty, openings, api: JSON.stringify({ etags, listIds: ['a'] }) }).api).toEqual({ etags, listIds: ['a'] });
+  });
+
+  describe('a refresh whose openings cannot be saved', () => {
+    const api: Opening = { ...createEmbeddedOpenings()[1], id: 'test-api', origin: 'api', embeddedKey: undefined };
+    const oldApi = { etags: { '/api/openings': '"l0"', '/api/openings/test-api': '"d0"' }, listIds: ['test-api'] };
+    const newApi = { etags: { '/api/openings': '"l1"', '/api/openings/test-api': '"d1"' }, listIds: ['test-api'] };
+
+    // AsyncStorage.setItem is already a jest.fn in the library's mock: its implementation is swapped, then put back.
+    const setItem = jest.mocked(AsyncStorage.setItem);
+    const realSet = setItem.getMockImplementation()!;
+    const failOn = (failing: string) =>
+      setItem.mockImplementation((key, value) => (key === failing ? Promise.reject(new Error('disk full')) : realSet(key, value)));
+
+    afterEach(() => {
+      setItem.mockImplementation(realSet);
+    });
+
+    it('keeps the previous ETags when the openings fail to save', async () => {
+      await saveRefresh([api], oldApi);
+      failOn(KEYS.openings);
+      await saveRefresh([], newApi);
+      expect(JSON.parse((await AsyncStorage.getItem(KEYS.api))!)).toEqual(oldApi);
+    });
+
+    it('drops the stored ETags when the new ETags fail to save after the openings', async () => {
+      await saveRefresh([api], oldApi);
+      failOn(KEYS.api);
+      await saveRefresh([api], newApi);
+      expect((await loadState()).api).toEqual({ etags: {} });
+    });
+  });
+
   it('uses versioned keys', () => {
     expect(Object.values(KEYS).every((k) => k.endsWith('.v1'))).toBe(true);
   });

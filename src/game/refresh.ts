@@ -19,9 +19,12 @@ export type RefreshResult =
 export const LIST_PATH = '/api/openings';
 export const detailPath = (id: string) => `/api/openings/${encodeURIComponent(id)}`;
 
+// A 304 is only useful with something stored to keep. When the list ids or the copy of an opening are missing, the
+// same URL is asked once more without If-None-Match: otherwise the same ETag would be sent, and fail, forever.
 export async function refreshOpenings(fetcher: Fetcher, stored: readonly Opening[], cache: ApiCache): Promise<RefreshResult> {
   try {
-    const list = await fetcher(LIST_PATH, cache.etags[LIST_PATH]);
+    let list = await fetcher(LIST_PATH, cache.etags[LIST_PATH]);
+    if (list.status === 304 && !cache.listIds) list = await fetcher(LIST_PATH);
     let ids: string[] | null;
     if (list.status === 304) ids = cache.listIds ?? null;
     else if (list.status === 200) ids = parseList(list.json);
@@ -34,12 +37,16 @@ export async function refreshOpenings(fetcher: Fetcher, stored: readonly Opening
     let skipped = 0;
     for (const id of ids) {
       const path = detailPath(id);
-      const r = await fetcher(path, cache.etags[path]);
+      const copy = stored.find((o) => o.origin === 'api' && o.id === id);
+      let r = await fetcher(path, cache.etags[path]);
+      if (r.status === 304 && !copy) r = await fetcher(path);
       if (r.status === 304) {
-        const copy = stored.find((o) => o.origin === 'api' && o.id === id);
         if (!copy) return { kind: 'failed' };
-        openings.push(copy);
-        if (r.etag ?? cache.etags[path]) etags[path] = (r.etag ?? cache.etags[path])!;
+        if (!openings.some((o) => o.id === copy.id)) {
+          openings.push(copy);
+          const etag = r.etag ?? cache.etags[path];
+          if (etag) etags[path] = etag;
+        } else skipped++;
       } else if (r.status === 200) {
         const opening = parseDetail(r.json);
         if (opening && !openings.some((o) => o.id === opening.id)) {

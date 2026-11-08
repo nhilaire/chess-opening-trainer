@@ -95,11 +95,50 @@ describe('refresh failure keeps everything (AC-41)', () => {
     expect(await refreshOpenings(failing(fail), createEmbeddedOpenings(), EMPTY_CACHE)).toEqual({ kind: 'failed' });
   });
 
-  it('fails on a 304 without stored copy', async () => {
+  it('fails when a 304 without stored copy answers 304 again without If-None-Match', async () => {
     const first = await refreshOpenings(contractFetcher(), [], EMPTY_CACHE);
     if (first.kind !== 'updated') throw new Error('first refresh failed');
-    const cache: ApiCache = first.cache;
-    expect(await refreshOpenings(contractFetcher(), createEmbeddedOpenings(), cache)).toEqual({ kind: 'failed' });
+    const calls: Call[] = [];
+    const stuck = failing((p) => (p.endsWith('italienne') ? { status: 304 } : undefined));
+    const counting: Fetcher = (path, etag) => {
+      calls.push({ path, etag });
+      return stuck(path, etag);
+    };
+    expect(await refreshOpenings(counting, createEmbeddedOpenings(), first.cache)).toEqual({ kind: 'failed' });
+    expect(calls.filter((c) => c.path.endsWith('italienne'))).toHaveLength(2); // one retry, not a loop
+  });
+});
+
+describe('a 304 without stored copy is fetched again (AC-41)', () => {
+  it('retries a detail once without If-None-Match and stores the fresh copy', async () => {
+    const first = await refreshOpenings(contractFetcher(), [], EMPTY_CACHE);
+    if (first.kind !== 'updated') throw new Error('first refresh failed');
+    const calls: Call[] = [];
+    const second = await refreshOpenings(contractFetcher(calls), createEmbeddedOpenings(), first.cache);
+    expect(second).toEqual({ kind: 'updated', openings: first.openings, cache: first.cache, skipped: 0 });
+    const italienne = calls.filter((c) => c.path === '/api/openings/test-italienne');
+    expect(italienne.map((c) => c.etag)).toEqual([first.cache.etags['/api/openings/test-italienne'], undefined]);
+  });
+
+  it('retries the list once without If-None-Match when no list ids are stored', async () => {
+    const first = await refreshOpenings(contractFetcher(), [], EMPTY_CACHE);
+    if (first.kind !== 'updated') throw new Error('first refresh failed');
+    const calls: Call[] = [];
+    const second = await refreshOpenings(contractFetcher(calls), first.openings, { etags: first.cache.etags });
+    expect(second).toEqual({ kind: 'updated', openings: first.openings, cache: first.cache, skipped: 0 });
+    expect(calls.filter((c) => c.path === '/api/openings').map((c) => c.etag)).toEqual([first.cache.etags['/api/openings'], undefined]);
+  });
+
+  it('keeps one copy of an opening listed twice and answered 304', async () => {
+    const first = await refreshOpenings(contractFetcher(), [], EMPTY_CACHE);
+    if (first.kind !== 'updated') throw new Error('first refresh failed');
+    const ok = contractFetcher();
+    const twice: Fetcher = (path, etag) =>
+      path === '/api/openings' ? Promise.resolve({ status: 200, json: [{ id: 'test-italienne' }, { id: 'test-italienne' }] }) : ok(path, etag);
+    const second = await refreshOpenings(twice, first.openings, first.cache);
+    if (second.kind !== 'updated') throw new Error('second refresh failed');
+    expect(second.openings.map((o) => o.id)).toEqual(['test-italienne']);
+    expect(second.skipped).toBe(1);
   });
 });
 

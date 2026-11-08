@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { createEmbeddedOpenings } from '../game/embedded';
-import { ApiCache, EMPTY_CACHE } from '../game/refresh';
+import { ApiCache, EMPTY_CACHE, LIST_PATH } from '../game/refresh';
 import type { LineState, Progress } from '../game/scheduler';
 import type { MoveNode, Opening } from '../game/types';
 import { logError } from '../util/log';
@@ -99,6 +99,8 @@ function decodeApi(v: unknown): ApiCache {
   if (!isObject(v) || !isObject(v.etags)) return EMPTY_CACHE;
   const etags = Object.fromEntries(Object.entries(v.etags).filter(([, e]) => typeof e === 'string')) as Record<string, string>;
   const listIds = Array.isArray(v.listIds) && v.listIds.every((id) => typeof id === 'string') ? (v.listIds as string[]) : undefined;
+  // The list ETag goes with the list ids: without them a 304 on the list has nothing to keep.
+  if (!listIds) delete etags[LIST_PATH];
   return { etags, ...(listIds ? { listIds } : {}) };
 }
 
@@ -138,20 +140,36 @@ export async function loadState(): Promise<StoredState> {
   }
 }
 
-async function save(key: string, value: unknown): Promise<void> {
+// True when the value was written; a failure is logged, never thrown.
+async function save(key: string, value: unknown): Promise<boolean> {
   try {
     await AsyncStorage.setItem(key, JSON.stringify(value));
+    return true;
   } catch (error) {
     logError(error, `save_${key}`);
+    return false;
   }
 }
 
-export const saveOpenings = (openings: Opening[]) => save(KEYS.openings, openings);
-export const saveProgress = (progress: Progress) => save(KEYS.progress, progress);
-export const saveFeedback = (feedback: Feedback) => save(KEYS.feedback, feedback);
+export const saveOpenings = async (openings: Opening[]) => {
+  await save(KEYS.openings, openings);
+};
+export const saveProgress = async (progress: Progress) => {
+  await save(KEYS.progress, progress);
+};
+export const saveFeedback = async (feedback: Feedback) => {
+  await save(KEYS.feedback, feedback);
+};
 
-// Openings and ETags of a successful refresh, saved together (openings first: an ETag never outlives its copy).
+// Openings and ETags of a successful refresh, saved together; an ETag never outlives its copy. Openings first: if
+// they are not written, the previous openings and their ETags stay as they were. If the new ETags are not written
+// after the new openings, the stored ETags are dropped (the next refresh fetches everything again).
 export async function saveRefresh(openings: Opening[], api: ApiCache): Promise<void> {
-  await saveOpenings(openings);
-  await save(KEYS.api, api);
+  if (!(await save(KEYS.openings, openings))) return;
+  if (await save(KEYS.api, api)) return;
+  try {
+    await AsyncStorage.removeItem(KEYS.api);
+  } catch (error) {
+    logError(error, `remove_${KEYS.api}`);
+  }
 }
