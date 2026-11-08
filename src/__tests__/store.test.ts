@@ -110,7 +110,7 @@ describe('upgrade from v0.1.0 / v0.2.0 (AC-45)', () => {
     expect(counts).toMatchObject({ mastered: 1, total: 12 });
   });
 
-  it('keeps the higher box on a clash, and leaves v0.3.0 keys alone', () => {
+  it('keeps the higher box on a clash, and leaves colour|moves keys alone', () => {
     const colorOf = (id: string) => (id === 'a' || id === 'b' ? 'white' : undefined) as 'white' | undefined;
     const { progress: out, migrated } = migrateProgress(
       { 'a|e4': { box: 2, due: TODAY, learnt: TODAY }, 'b|e4': { box: 5, due: TODAY, learnt: TODAY }, 'white|d4': { box: 1, due: TODAY, learnt: TODAY } },
