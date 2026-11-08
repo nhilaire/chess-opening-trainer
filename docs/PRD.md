@@ -5,7 +5,7 @@ Project slug: chess-opening-trainer
 Final app name: Mes Ouvertures
 Android package: io.github.nhilaire.chessopeningtrainer
 Version target: 0.3.0
-Last updated: 2026-11-04
+Last updated: 2026-11-08
 
 > v0.2.0 amendment (after the v0.1.0 phone test): no daily limit on new lines; « Réviser » and « S'entraîner sur
 > cette ouverture » queue every line of their scope in random order (new lines still in discovery mode); a line
@@ -273,9 +273,13 @@ Openings API
   are exactly the API openings in list order (embedded seed and older imported openings gone) and the ETags are
   stored; given 304 answers to the If-None-Match ETags, then the stored copies are kept.
 - AC-41 [unit] Given a refresh that fails (network error, timeout, status 500 on the list or a detail, invalid JSON,
-  a 304 without stored copy), then the stored openings and ETags are unchanged and home shows `home.offline`; given
-  one detail with an illegal move, an unknown colour or no player move, then the other openings are stored, that one
-  is skipped and home shows `home.partial` (1); sibling nodes with the same move are merged; extra fields are ignored.
+  a 304 without stored copy answered 304 again on its retry), then the stored openings and ETags are unchanged and
+  home shows `home.offline`; given one detail with an illegal move, an unknown colour or no player move, then the
+  other openings are stored, that one is skipped and home shows `home.partial` (1); sibling nodes with the same move
+  are merged; extra fields are ignored. (Amended 2026-11-08 with the user, v0.3.1: a 304 without stored copy, or a 304
+  on the list without stored list ids, is fetched again once without `If-None-Match`, and the refresh only fails if
+  that retry answers 304 again; an opening listed twice and answered 304 is kept once; an ETag is not kept when its
+  opening could not be stored, and is dropped when a later store of it fails.)
 - AC-42 [unit] Given the API client, then every request is a GET with a 45 s timeout and the stored ETag in
   `If-None-Match`; no request carries an identifier.
 - AC-43 [e2e] Given the mock API serving a test repertoire, when the app is launched, then home shows the API
