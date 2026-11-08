@@ -1,9 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, within } from '@testing-library/react-native';
+import { AppState, AppStateStatus } from 'react-native';
 
 import App from '../App';
 import { appName } from '../config/app';
+import { createEmbeddedOpenings } from '../game/embedded';
+import { extractLines } from '../game/repertoire';
 import { deviceLanguageTags } from '../i18n/deviceLocale';
+import { KEYS } from '../storage/repertoireStore';
 
 // render/fireEvent are awaited: asynchronous in React Native Testing Library 14+, harmless before.
 // The phone is French unless a test says otherwise (jest.setup.js mocks deviceLanguageTags).
@@ -63,5 +67,50 @@ describe('App', () => {
     expect(screen.getByText('Créé par un développeur indépendant passionné.')).toBeTruthy();
     expect(screen.getByText(/cburnett/)).toBeTruthy();
     expect(screen.getByText(/^Version [0-9]+[.][0-9]+[.][0-9]+$/)).toBeTruthy();
+  });
+
+  describe('the day changes while the app is open (AC-19)', () => {
+    // Only Date is faked: React Native Testing Library keeps its real timers.
+    const realTimers = ['hrtime', 'nextTick', 'performance', 'queueMicrotask', 'requestAnimationFrame', 'cancelAnimationFrame', 'requestIdleCallback', 'cancelIdleCallback', 'setImmediate', 'clearImmediate', 'setInterval', 'clearInterval', 'setTimeout', 'clearTimeout'] as const;
+    let listeners: ((state: AppStateStatus) => void)[];
+
+    beforeEach(async () => {
+      jest.useFakeTimers({ doNotFake: [...realTimers], now: new Date(2026, 10, 8, 23, 59) });
+      listeners = [];
+      jest.spyOn(AppState, 'addEventListener').mockImplementation((_type, listener) => {
+        listeners.push(listener as (state: AppStateStatus) => void);
+        return { remove: jest.fn() } as unknown as ReturnType<typeof AppState.addEventListener>;
+      });
+      // One line of the first embedded opening, learnt yesterday, due tomorrow (09/11).
+      const [opening] = createEmbeddedOpenings();
+      const [line] = extractLines(opening);
+      await AsyncStorage.setItem(KEYS.progress, JSON.stringify({ [line.id]: { box: 1, due: '2026-11-09', learnt: '2026-11-07' } }));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+      jest.restoreAllMocks();
+    });
+
+    const firstOpeningMeta = () => within(screen.getByTestId(`home-opening-${createEmbeddedOpenings()[0].id}`));
+
+    it('counts the line due today on home when the app comes back to the foreground after midnight', async () => {
+      await render(<App />);
+      await screen.findByTestId('home-screen');
+      expect(firstOpeningMeta().getByText(/· 0 à revoir ·/)).toBeTruthy();
+
+      jest.setSystemTime(new Date(2026, 10, 9, 7, 30));
+      await act(async () => listeners.forEach((listener) => listener('active')));
+      expect(firstOpeningMeta().getByText(/· 1 à revoir ·/)).toBeTruthy();
+    });
+
+    it('reads the day again on navigation', async () => {
+      await render(<App />);
+      await screen.findByTestId('home-screen');
+      jest.setSystemTime(new Date(2026, 10, 9, 0, 1));
+      await fireEvent.press(screen.getByText('Réglages'));
+      await fireEvent.press(screen.getByTestId('settings-back'));
+      expect(firstOpeningMeta().getByText(/· 1 à revoir ·/)).toBeTruthy();
+    });
   });
 });

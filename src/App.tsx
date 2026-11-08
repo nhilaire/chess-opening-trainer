@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, AppState, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -33,6 +33,21 @@ export default function App() {
   const [languageReady, setLanguageReady] = useState(false);
   const [route, setRoute] = useState<Route>({ name: 'home' });
   const [languageSetting, setLanguageSetting] = useState<LanguageSetting>('auto');
+  // Today's local day, held in state so that home and detail counts follow midnight: read again when the app comes
+  // back to the foreground and on every navigation (setState with the same string does not re-render).
+  const [day, setDay] = useState(today);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') setDay(today());
+    });
+    // Optional chaining: Jest mocks of AppState.addEventListener may return nothing.
+    return () => sub?.remove();
+  }, []);
+
+  useEffect(() => {
+    setDay(today());
+  }, [route]);
 
   useEffect(() => {
     let alive = true;
@@ -76,7 +91,7 @@ export default function App() {
   } else if (route.name === 'detail') {
     const opening = repertoire.openings.find((o) => o.id === route.id);
     content = opening ? (
-      <DetailScreen opening={opening} progress={repertoire.progress} today={today()} onTrain={() => train(opening.id)} onBack={home} />
+      <DetailScreen opening={opening} progress={repertoire.progress} today={day} onTrain={() => train(opening.id)} onBack={home} />
     ) : null;
   } else if (route.name === 'training') {
     content = (
@@ -107,7 +122,7 @@ export default function App() {
       <HomeScreen
         openings={repertoire.openings}
         progress={repertoire.progress}
-        today={today()}
+        today={day}
         refresh={repertoire.refresh}
         onReview={() => train()}
         onOpen={(id) => setRoute({ name: 'detail', id })}
