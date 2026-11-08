@@ -56,7 +56,9 @@ export function finishLine(session: Session, outcome: Outcome, reached?: Line): 
   const line = reached ?? item.line;
   const id = line.id;
   const previous = session.results[id];
-  const result = outcome === 'failure' || previous === 'failed' ? 'failed' : outcome === 'learnt' ? 'learnt' : 'ok';
+  // Each line counts once in the summary: failed wins, then learnt (a line learnt then passed again stays learnt).
+  const result =
+    outcome === 'failure' || previous === 'failed' ? 'failed' : outcome === 'learnt' || previous === 'learnt' ? 'learnt' : 'ok';
   const requeue = outcome === 'failure' && !session.requeued.includes(id);
   const done = session.queue.slice(0, session.index + 1);
   const rest = session.queue.slice(session.index + 1).filter((q) => q.line.id !== id);

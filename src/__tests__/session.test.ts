@@ -105,6 +105,16 @@ describe('session (AC-17, AC-15 summary)', () => {
     expect(summary(s)).toEqual({ ok: 1, failed: 1, learnt: 0 });
   });
 
+  it('keeps a line learnt then reached again and passed as « apprise » (AC-46)', () => {
+    const [l1, l2, l3] = extractLines(A);
+    let s = startSession([{ line: l1, mode: 'discover' as const }, { line: l2, mode: 'review' as const }, { line: l3, mode: 'review' as const }]);
+    s = finishLine(s, 'learnt'); // l1 discovered
+    s = finishLine(s, 'success', l1); // target l2, the player went to l1 again
+    expect(summary(s)).toEqual({ ok: 0, failed: 0, learnt: 1 });
+    s = finishLine(s, 'failure', l1); // target l3, reached l1 and failed: failed still wins
+    expect(summary(s)).toEqual({ ok: 0, failed: 1, learnt: 0 });
+  });
+
   it('keeps a line failed then passed in the session as « à revoir »', () => {
     let s = startSession(queue.slice(0, 1));
     s = finishLine(s, 'failure');
