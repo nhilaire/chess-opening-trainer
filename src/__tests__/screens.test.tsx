@@ -14,7 +14,6 @@ import { deviceLanguageTags } from '../i18n/deviceLocale';
 import { KEYS } from '../storage/repertoireStore';
 
 // Component tests of the whole app. The openings API is the mock contract (fake repertoires), or offline.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const contract = require('../../mock-api/contract.cjs');
 const v1 = require('../../mock-api/scenarios/repertoire-v1.json');
 

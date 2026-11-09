@@ -1,5 +1,3 @@
-import { Chess } from 'chess.js';
-
 import { parsePgn } from '../game/pgn';
 import { extractLines, lineId, movesAfter } from '../game/repertoire';
 import type { Color, Opening } from '../game/types';

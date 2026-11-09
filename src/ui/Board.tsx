@@ -1,6 +1,6 @@
 // Chess board: tap a piece then a square, or drag it. Highlights the selection, its legal destinations and the
 // last move; draws green arrows; flipped for Black. No chess rule here: legality comes from the engine helpers.
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -9,6 +9,7 @@ import Svg, { Line, Polygon, SvgXml } from 'react-native-svg';
 import { Arrow, BoardPiece, legalTargets, piecesOf, sideToMove, Square } from '../game/trainer';
 import type { Color } from '../game/types';
 import { isLightSquare, squareAt, squareOrigin, squaresInView } from './boardGeometry';
+import { DragTracker } from './dragTracker';
 import { PIECE_SVGS } from './pieceSvgs';
 import { board as palette } from './theme';
 
@@ -73,8 +74,7 @@ export function Board({ fen, orientation, size, lastMove, arrows = [], interacti
   const cell = size / 8;
   const [selected, setSelected] = useState<Square | null>(null);
   const [dragFrom, setDragFrom] = useState<Square | null>(null);
-  const dragRef = useRef<Square | null>(null); // read by the gesture callbacks (state may lag a render behind)
-  const touchRef = useRef<Square | null>(null); // square under the finger at touch-down
+  const drag = useMemo(() => new DragTracker(), []); // read by the gesture callbacks (state may lag a render behind)
   const dragX = useSharedValue(0);
   const dragY = useSharedValue(0);
 
@@ -85,11 +85,16 @@ export function Board({ fen, orientation, size, lastMove, arrows = [], interacti
   const from = dragFrom ?? selected;
   const targets = useMemo(() => (from ? legalTargets(fen, from) : []), [fen, from]);
 
-  useEffect(() => {
+  // A new position or a locked board drops the selection and the drag in progress (state adjusted during render).
+  const [resetKey, setResetKey] = useState({ fen, interactive });
+  if (resetKey.fen !== fen || resetKey.interactive !== interactive) {
+    setResetKey({ fen, interactive });
     setSelected(null);
     setDragFrom(null);
-    dragRef.current = null;
-  }, [fen, interactive]);
+  }
+  useEffect(() => {
+    drag.clearOrigin();
+  }, [drag, fen, interactive]);
 
   const tap = (square: Square) => {
     if (!interactive) return;
@@ -107,15 +112,15 @@ export function Board({ fen, orientation, size, lastMove, arrows = [], interacti
     .enabled(interactive)
     // The piece is the one touched, not the one under the finger once the 8 px threshold is crossed.
     .onBegin((e) => {
-      touchRef.current = squareAt(e.x, e.y, cell, orientation);
+      drag.touch(squareAt(e.x, e.y, cell, orientation));
     })
     .onStart((e) => {
-      const square = touchRef.current;
+      const square = drag.touchedSquare();
       if (!ownPiece(square)) return;
       dragX.value = e.x - cell / 2;
       dragY.value = e.y - cell / 2;
       setSelected(null);
-      dragRef.current = square;
+      drag.start(square);
       setDragFrom(square);
     })
     .onUpdate((e) => {
@@ -123,13 +128,12 @@ export function Board({ fen, orientation, size, lastMove, arrows = [], interacti
       dragY.value = e.y - cell / 2;
     })
     .onEnd((e) => {
-      const start = dragRef.current;
+      const start = drag.origin();
       const to = squareAt(e.x, e.y, cell, orientation);
       if (start && to && to !== start) onMove(start, to);
     })
     .onFinalize(() => {
-      touchRef.current = null;
-      dragRef.current = null;
+      drag.clear();
       setDragFrom(null);
     });
 

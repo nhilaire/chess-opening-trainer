@@ -36,6 +36,11 @@ export default function App() {
   // Today's local day, held in state so that home and detail counts follow midnight: read again when the app comes
   // back to the foreground and on every navigation (setState with the same string does not re-render).
   const [day, setDay] = useState(today);
+  const [dayRoute, setDayRoute] = useState(route);
+  if (dayRoute !== route) {
+    setDayRoute(route);
+    setDay(today());
+  }
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
@@ -44,10 +49,6 @@ export default function App() {
     // Optional chaining: Jest mocks of AppState.addEventListener may return nothing.
     return () => sub?.remove();
   }, []);
-
-  useEffect(() => {
-    setDay(today());
-  }, [route]);
 
   useEffect(() => {
     let alive = true;
@@ -63,11 +64,9 @@ export default function App() {
     };
   }, []);
 
-  // The detail screen of an opening that a refresh removed goes back to home.
+  // The detail screen of an opening that a refresh removed goes back to home (state adjusted during render).
   const detailGone = route.name === 'detail' && repertoire.ready && !repertoire.openings.some((o) => o.id === route.id);
-  useEffect(() => {
-    if (detailGone) setRoute({ name: 'home' });
-  }, [detailGone]);
+  if (detailGone) setRoute({ name: 'home' });
 
   const changeLanguage = useCallback(async (value: LanguageSetting) => {
     setLanguageSetting(value);

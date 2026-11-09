@@ -42,10 +42,14 @@ export function TrainingScreen({ queue, openings, progress, feedback, onLineDone
   const [lineNumber, setLineNumber] = useState(1);
   const [promotion, setPromotion] = useState<{ from: Square; to: Square } | null>(null);
   const [result, setResult] = useState<Outcome | null>(null);
+  // Latest feedback and progress for the effects below (declared after this one, so they always read the fresh
+  // values) without making them re-run when these props change.
   const feedbackRef = useRef(feedback);
-  feedbackRef.current = feedback;
   const progressRef = useRef(progress);
-  progressRef.current = progress;
+  useEffect(() => {
+    feedbackRef.current = feedback;
+    progressRef.current = progress;
+  });
 
   const stop = useCallback(() => onExit(session), [onExit, session]);
   useBack(stop);

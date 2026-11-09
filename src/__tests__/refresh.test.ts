@@ -1,10 +1,9 @@
 import { ApiResponse, Fetcher, httpFetcher, TIMEOUT_MS } from '../api/openingsClient';
 import { createEmbeddedOpenings } from '../game/embedded';
-import { ApiCache, EMPTY_CACHE, refreshOpenings } from '../game/refresh';
+import { EMPTY_CACHE, refreshOpenings } from '../game/refresh';
 import { extractLines } from '../game/repertoire';
 
 // The mock API's contract is the fake backend (same code as the emulator scenarios).
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const contract = require('../../mock-api/contract.cjs');
 const v1 = require('../../mock-api/scenarios/repertoire-v1.json');
 const v2 = require('../../mock-api/scenarios/repertoire-v2.json');
